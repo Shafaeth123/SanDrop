@@ -1,0 +1,997 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+
+<style>
+/* =========================================================
+   PREMIUM ADMIN ORDERS PAGE
+   No separate admin CSS required
+========================================================= */
+
+.admin-orders-page {
+    width: 100%;
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 10px 0 50px;
+    box-sizing: border-box;
+}
+
+/* ---------- Heading ---------- */
+
+.orders-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 28px;
+}
+
+.orders-heading-left {
+    text-align: left;
+}
+
+.orders-eyebrow {
+    display: inline-block;
+    margin-bottom: 8px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: #8b8175;
+    text-transform: uppercase;
+}
+
+.orders-heading h1 {
+    margin: 0;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 42px;
+    line-height: 1.1;
+    font-weight: 500;
+    color: #171513;
+}
+
+.orders-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 42px;
+    height: 30px;
+    padding: 0 12px;
+    margin-left: 10px;
+    border-radius: 999px;
+    background: #171513;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    vertical-align: middle;
+}
+
+/* ---------- Main Card ---------- */
+
+.orders-panel {
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #e8e2da;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 16px 45px rgba(30, 25, 20, 0.07);
+}
+
+/* ---------- Table Scroll ---------- */
+
+.orders-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+}
+
+.orders-table {
+    width: 100%;
+    min-width: 1350px;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+/* ---------- Table Head ---------- */
+
+.orders-table thead {
+    background: #faf8f5;
+}
+
+.orders-table th {
+    padding: 17px 18px;
+    border-bottom: 1px solid #e8e2da;
+    color: #766e65;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.3px;
+    text-transform: uppercase;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.orders-table th:first-child {
+    padding-left: 24px;
+}
+
+.orders-table th:last-child {
+    padding-right: 24px;
+}
+
+/* ---------- Table Body ---------- */
+
+.orders-table td {
+    padding: 20px 18px;
+    border-bottom: 1px solid #eee9e3;
+    color: #302c28;
+    font-size: 13px;
+    vertical-align: middle;
+    background: #ffffff;
+}
+
+.orders-table tbody tr.order-main-row {
+    transition: background 0.2s ease;
+}
+
+.orders-table tbody tr.order-main-row:hover td {
+    background: #fcfaf7;
+}
+
+.orders-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.orders-table td:first-child {
+    padding-left: 24px;
+}
+
+.orders-table td:last-child {
+    padding-right: 24px;
+}
+
+/* ---------- Order Number ---------- */
+
+.order-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 64px;
+    padding: 8px 11px;
+    border-radius: 10px;
+    background: #f4f1ed;
+    color: #201d1a;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+/* ---------- Customer ---------- */
+
+.customer-name {
+    margin-bottom: 5px;
+    color: #191715;
+    font-size: 14px;
+    font-weight: 750;
+}
+
+.customer-contact {
+    line-height: 1.65;
+    color: #777069;
+    font-size: 12px;
+}
+
+.customer-contact a {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* ---------- ORDER ITEMS ---------- */
+
+.order-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 260px;
+}
+
+.admin-order-item {
+    padding: 10px 12px;
+    border: 1px solid #e7e1da;
+    border-radius: 12px;
+    background: #faf9f7;
+}
+
+.admin-order-item-name {
+    margin-bottom: 5px;
+    color: #211e1b;
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.35;
+}
+
+.admin-order-item-meta {
+    color: #777069;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+/* ---------- Total ---------- */
+
+.order-total {
+    color: #171513;
+    font-size: 15px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+/* =========================================================
+   PAYMENT BADGES
+========================================================= */
+
+.payment-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-width: 82px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.payment-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+/* COD */
+
+.cod-badge {
+    background: #f3ead9;
+    color: #765b2d;
+}
+
+.cod-badge .payment-dot {
+    background: #a47b35;
+}
+
+/* bKash */
+
+.bkash-badge {
+    background: #fce4ee;
+    color: #b21d61;
+}
+
+.bkash-badge .payment-dot {
+    background: #d91b72;
+}
+
+/* Nagad */
+
+.nagad-badge {
+    background: #fff0dc;
+    color: #b65d13;
+}
+
+.nagad-badge .payment-dot {
+    background: #e47716;
+}
+
+/* =========================================================
+   TRANSACTION ID
+========================================================= */
+
+.transaction-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 210px;
+}
+
+.transaction-id {
+    display: inline-block;
+    max-width: 145px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 8px 10px;
+    border: 1px solid #e4ded6;
+    border-radius: 9px;
+    background: #faf9f7;
+    color: #26221e;
+    font-family: "Courier New", monospace;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.no-transaction {
+    color: #a39b92;
+    font-size: 12px;
+    font-style: italic;
+}
+
+/* ---------- Copy Button ---------- */
+
+.copy-transaction-btn {
+    flex-shrink: 0;
+    border: 1px solid #ddd6ce;
+    border-radius: 9px;
+    padding: 8px 10px;
+    background: #ffffff;
+    color: #4c4640;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 750;
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.15s ease;
+}
+
+.copy-transaction-btn:hover {
+    background: #171513;
+    border-color: #171513;
+    color: #ffffff;
+}
+
+.copy-transaction-btn:active {
+    transform: scale(0.96);
+}
+
+.copy-transaction-btn.copied {
+    background: #1d6b4f;
+    border-color: #1d6b4f;
+    color: #ffffff;
+}
+
+/* =========================================================
+   STATUS SELECT
+========================================================= */
+
+.status-form {
+    margin: 0;
+}
+
+.status-select {
+    min-width: 125px;
+    padding: 9px 32px 9px 11px;
+    border: 1px solid #ddd7d0;
+    border-radius: 10px;
+    outline: none;
+    background-color: #ffffff;
+    color: #302c28;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.status-select:hover {
+    border-color: #b9b0a6;
+}
+
+.status-select:focus {
+    border-color: #81766b;
+    box-shadow: 0 0 0 3px rgba(129, 118, 107, 0.10);
+}
+
+/* =========================================================
+   DATE
+========================================================= */
+
+.order-date {
+    color: #766e65;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+/* =========================================================
+   DELIVERY ADDRESS
+========================================================= */
+
+.address-row td {
+    padding: 13px 24px 17px;
+    background: #faf9f7;
+    border-bottom: 1px solid #e8e2da;
+    color: #6d665f;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.address-row strong {
+    color: #27231f;
+    font-weight: 800;
+    margin-right: 5px;
+}
+
+.address-icon {
+    display: inline-block;
+    margin-right: 5px;
+}
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.empty-orders {
+    padding: 75px 25px;
+    text-align: center;
+}
+
+.empty-orders-icon {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #f5f2ee;
+    color: #766e65;
+    font-size: 25px;
+}
+
+.empty-orders h2 {
+    margin: 0 0 8px;
+    color: #211e1b;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 25px;
+    font-weight: 500;
+}
+
+.empty-orders p {
+    margin: 0;
+    color: #8a827a;
+    font-size: 13px;
+}
+
+/* =========================================================
+   SCROLLBAR
+========================================================= */
+
+.orders-table-wrap::-webkit-scrollbar {
+    height: 9px;
+}
+
+.orders-table-wrap::-webkit-scrollbar-track {
+    background: #f5f2ee;
+}
+
+.orders-table-wrap::-webkit-scrollbar-thumb {
+    background: #c9c1b8;
+    border-radius: 20px;
+}
+
+.orders-table-wrap::-webkit-scrollbar-thumb:hover {
+    background: #aaa097;
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 900px) {
+
+    .admin-orders-page {
+        padding: 5px 0 35px;
+    }
+
+    .orders-heading {
+        align-items: flex-start;
+        margin-bottom: 20px;
+    }
+
+    .orders-heading h1 {
+        font-size: 34px;
+    }
+
+    .orders-panel {
+        border-radius: 18px;
+    }
+
+    .orders-table {
+        min-width: 1080px;
+    }
+}
+
+@media (max-width: 600px) {
+
+    .orders-heading h1 {
+        font-size: 30px;
+    }
+
+    .orders-count {
+        min-width: 36px;
+        height: 27px;
+        padding: 0 9px;
+        font-size: 11px;
+    }
+
+    .orders-eyebrow {
+        font-size: 9px;
+        letter-spacing: 1.6px;
+    }
+
+    .orders-panel {
+        border-radius: 16px;
+    }
+}
+</style>
+
+
+<div class="admin-orders-page">
+
+    <!-- =====================================================
+         PAGE HEADING
+    ====================================================== -->
+
+    <div class="orders-heading">
+
+        <div class="orders-heading-left">
+
+            <span class="orders-eyebrow">
+                SALES · MANAGEMENT
+            </span>
+
+            <h1>
+                Orders
+
+                {% if orders %}
+                    <span class="orders-count">
+                        {{ orders|length }}
+                    </span>
+                {% endif %}
+            </h1>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         ORDERS PANEL
+    ====================================================== -->
+
+    
+<!-- ORDER SEARCH & FILTER -->
+<form method="GET" action="{{ url_for('admin_orders') }}"
+      style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:22px; padding:18px; background:#fff; border:1px solid #e8e2da; border-radius:16px;">
+
+    <input
+        type="text"
+        name="search"
+        value="{{ search }}"
+        placeholder="Search order ID, customer, phone, email or product..."
+        style="flex:1; min-width:220px; padding:12px; border:1px solid #ddd; border-radius:9px;"
+    >
+
+    <select name="status"
+            style="padding:12px; border:1px solid #ddd; border-radius:9px;">
+        <option value="">All Statuses</option>
+        {% for s in ['Pending', 'Confirmed', 'Processing', 'Shipped', 'Delivered', 'Cancelled'] %}
+        <option value="{{ s }}" {% if status == s %}selected{% endif %}>
+            {{ s }}
+        </option>
+        {% endfor %}
+    </select>
+
+    <input type="date" name="date_from" value="{{ date_from }}"
+           title="From date"
+           style="padding:12px; border:1px solid #ddd; border-radius:9px;">
+
+    <input type="date" name="date_to" value="{{ date_to }}"
+           title="To date"
+           style="padding:12px; border:1px solid #ddd; border-radius:9px;">
+
+    <button type="submit" class="btn dark">Apply Filters</button>
+
+    <a href="{{ url_for('admin_orders') }}" class="btn">Reset</a>
+</form>
+
+    <section class="orders-panel">
+
+        {% if orders %}
+
+        <div class="orders-table-wrap">
+
+            <table class="orders-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Order</th>
+                        <th>Customer</th>
+                        <th>Contact</th>
+                        <th>Items</th>
+                        <th>Total</th>
+                        <th>Payment</th>
+                        <th>Transaction ID</th>
+                        <th>Status</th>
+                        <th>Placed</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for o in orders %}
+
+                    <!-- =================================================
+                         MAIN ORDER ROW
+                    ================================================== -->
+
+                    <tr class="order-main-row">
+
+                        <!-- Order -->
+
+                        <td>
+                            <span class="order-number">
+                                #{{ o.id }}
+                            </span>
+                        </td>
+
+
+                        <!-- Customer -->
+
+                        <td>
+
+                            <div class="customer-name">
+                                {{ o.name }}
+                            </div>
+
+                        </td>
+
+
+                        <!-- Contact -->
+
+                        <td>
+
+                            <div class="customer-contact">
+
+                                {% if o.phone %}
+                                    {{ o.phone }}
+                                {% endif %}
+
+                                {% if o.email %}
+                                    <br>
+                                    {{ o.email }}
+                                {% endif %}
+
+                            </div>
+
+                        </td>
+
+
+                                               <!-- Items -->
+
+                        <td>
+
+                            <div class="order-items-list">
+
+                                {% for item in items_by_order.get(o.id, []) %}
+
+                                    <div class="admin-order-item">
+
+                                        <div class="admin-order-item-name">
+                                            {{ item.product_name }}
+                                        </div>
+
+                                        <div class="admin-order-item-meta">
+
+                                            Qty {{ item.quantity }}
+
+                                            {% if item.size %}
+                                                · Size: {{ item.size }}
+                                            {% endif %}
+
+                                            {% if item.color %}
+                                                · Color: {{ item.color }}
+                                            {% endif %}
+
+                                        </div>
+
+                                    </div>
+
+                                {% endfor %}
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- Total -->
+
+                        <td>
+
+                            <span class="order-total">
+                                ৳{{ "{:,.0f}".format(o.total) }}
+                            </span>
+
+                        </td>
+
+
+                        <!-- =================================================
+                             PAYMENT METHOD
+                        ================================================== -->
+
+                        <td>
+
+                            {% if o.payment_method == "bkash" %}
+
+                                <span class="payment-badge bkash-badge">
+                                    <span class="payment-dot"></span>
+                                    bKash
+                                </span>
+
+                            {% elif o.payment_method == "nagad" %}
+
+                                <span class="payment-badge nagad-badge">
+                                    <span class="payment-dot"></span>
+                                    Nagad
+                                </span>
+
+                            {% else %}
+
+                                <span class="payment-badge cod-badge">
+                                    <span class="payment-dot"></span>
+                                    Cash
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- =================================================
+                             TRANSACTION ID
+                        ================================================== -->
+
+                        <td>
+
+                            {% if o.transaction_id %}
+
+                                <div class="transaction-box">
+
+                                    <span
+                                        class="transaction-id"
+                                        title="{{ o.transaction_id }}"
+                                    >
+                                        {{ o.transaction_id }}
+                                    </span>
+
+                                    <button
+                                        type="button"
+                                        class="copy-transaction-btn"
+                                        onclick="copyTransaction('{{ o.transaction_id|e }}', this)"
+                                    >
+                                        Copy
+                                    </button>
+
+                                </div>
+
+                            {% else %}
+
+                                <span class="no-transaction">
+                                    —
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- =================================================
+                             STATUS
+                        ================================================== -->
+
+                        <td>
+
+                            <form
+                                method="post"
+                                action="{{ url_for('admin_order_status', oid=o.id) }}"
+                                class="status-form"
+                            >
+
+                                <select
+                                    name="status"
+                                    class="status-select"
+                                    onchange="this.form.submit()"
+                                >
+
+                                    {% for s in [
+                                        'Pending',
+                                        'Confirmed',
+                                        'Processing',
+                                        'Shipped',
+                                        'Delivered',
+                                        'Cancelled'
+                                    ] %}
+
+                                        <option
+                                            value="{{ s }}"
+                                            {% if o.status == s %}
+                                                selected
+                                            {% endif %}
+                                        >
+                                            {{ s }}
+                                        </option>
+
+                                    {% endfor %}
+
+                                </select>
+
+                            </form>
+
+                        </td>
+
+
+                        <!-- Placed -->
+
+                        <td>
+
+                            <span class="order-date">
+
+                                {% if o.created_at %}
+                                    {{ o.created_at[:16].replace('T', ' ') }}
+                                {% else %}
+                                    —
+                                {% endif %}
+
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+
+                    <!-- =================================================
+                         DELIVERY ADDRESS
+                    ================================================== -->
+
+                    <tr class="address-row">
+
+                        <td colspan="9">
+
+                            <strong>
+                                <span class="address-icon">⌖</span>
+                                Delivery:
+                            </strong>
+
+                            {{ o.address or 'No address provided' }}
+
+                        </td>
+
+                    </tr>
+
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <!-- =====================================================
+             EMPTY ORDERS
+        ====================================================== -->
+
+        <div class="empty-orders">
+
+            <div class="empty-orders-icon">
+                🛍
+            </div>
+
+            <h2>
+    {% if search or status or date_from or date_to %}
+        No matching orders
+    {% else %}
+        No orders yet
+    {% endif %}
+</h2>
+
+<p>
+    {% if search or status or date_from or date_to %}
+        Try changing your search or filters.
+    {% else %}
+        Customer orders will appear here when they are placed.
+    {% endif %}
+</p>
+
+            <p>
+                Customer orders will appear here when they are placed.
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+
+<script>
+/* =========================================================
+   COPY TRANSACTION ID
+========================================================= */
+
+function copyTransaction(transactionId, button) {
+
+    if (!transactionId) {
+        return;
+    }
+
+    navigator.clipboard.writeText(transactionId)
+        .then(function () {
+
+            const originalText = button.innerText;
+
+            button.innerText = "Copied";
+            button.classList.add("copied");
+
+            setTimeout(function () {
+
+                button.innerText = originalText;
+                button.classList.remove("copied");
+
+            }, 1500);
+
+        })
+        .catch(function () {
+
+            /* Fallback for older browsers */
+
+            const textarea = document.createElement("textarea");
+
+            textarea.value = transactionId;
+
+            textarea.style.position = "fixed";
+            textarea.style.opacity = "0";
+
+            document.body.appendChild(textarea);
+
+            textarea.select();
+
+            try {
+                document.execCommand("copy");
+
+                const originalText = button.innerText;
+
+                button.innerText = "Copied";
+                button.classList.add("copied");
+
+                setTimeout(function () {
+
+                    button.innerText = originalText;
+                    button.classList.remove("copied");
+
+                }, 1500);
+
+            } catch (error) {
+
+                button.innerText = "Copy failed";
+
+                setTimeout(function () {
+                    button.innerText = "Copy";
+                }, 1500);
+
+            }
+
+            document.body.removeChild(textarea);
+
+        });
+}
+</script>
+
+{% endblock %}

@@ -1,0 +1,492 @@
+{% extends "base.html" %}
+{% block title %}Checkout — SanDrop{% endblock %}
+
+{% block content %}
+<style>
+/* SanDrop checkout — self-contained responsive styling */
+.checkout-page {
+    --co-ink: #171717;
+    --co-muted: #737373;
+    --co-line: #e8e6e2;
+    --co-paper: #fff;
+    --co-soft: #f7f6f3;
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 34px 22px 76px;
+    color: var(--co-ink);
+}
+.checkout-hero { margin: 0 0 30px; }
+.checkout-eyebrow { font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--co-muted); }
+.checkout-hero h1 { margin: 10px 0 8px; font-size: clamp(32px, 5vw, 48px); line-height: 1.08; letter-spacing: -1.7px; font-weight: 600; }
+.checkout-hero p { margin: 0; color: var(--co-muted); font-size: 14px; line-height: 1.7; }
+.checkout-progress { display:flex; align-items:center; gap:10px; margin-top:22px; color:#555; font-size:11px; letter-spacing:.4px; }
+.checkout-progress span { display:inline-flex; align-items:center; gap:7px; }
+.checkout-progress b { display:grid; place-items:center; width:23px; height:23px; border:1px solid #d6d3cd; border-radius:50%; font-size:10px; font-weight:500; }
+.checkout-progress .active b { background:var(--co-ink); color:white; border-color:var(--co-ink); }
+.checkout-progress i { height:1px; width:28px; background:#ddd; }
+.checkout-layout { display:grid; grid-template-columns:minmax(0,1fr) 370px; align-items:start; gap:28px; }
+.checkout-form { min-width:0; }
+.checkout-card, .checkout-summary { background:var(--co-paper); border:1px solid var(--co-line); }
+.checkout-card { padding:25px; margin-bottom:18px; }
+.checkout-card-heading { display:flex; gap:13px; align-items:flex-start; padding-bottom:22px; border-bottom:1px solid #efede9; margin-bottom:22px; }
+.checkout-step-number { flex:0 0 31px; width:31px; height:31px; display:grid; place-items:center; border:1px solid #dedbd5; font-size:11px; }
+.checkout-card-heading h2 { font-size:18px; line-height:1.3; margin:2px 0 5px; font-weight:600; }
+.checkout-card-heading p { margin:0; font-size:12px; line-height:1.6; color:var(--co-muted); }
+.checkout-form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px 15px; }
+.checkout-field { display:flex; flex-direction:column; gap:8px; font-size:12px; font-weight:500; }
+.checkout-field.full { grid-column:1/-1; }
+.checkout-field input, .checkout-field textarea {
+    display:block; width:100%; min-width:0; border:1px solid #dedbd5; border-radius:2px;
+    padding:13px 14px; background:#fff; color:var(--co-ink); font:inherit; font-size:13px;
+    outline:none; transition:border-color .18s, box-shadow .18s;
+}
+.checkout-field textarea { resize:vertical; min-height:100px; line-height:1.6; }
+.checkout-field input:focus, .checkout-field textarea:focus { border-color:#555; box-shadow:0 0 0 3px rgba(0,0,0,.045); }
+.checkout-field input::placeholder, .checkout-field textarea::placeholder { color:#aaa; font-weight:400; }
+.payment-options { display:grid; gap:10px; }
+.payment-option {
+    display:flex; align-items:center; gap:13px; padding:15px; border:1px solid #e4e1db;
+    cursor:pointer; transition:border-color .18s, background .18s; position:relative;
+}
+.payment-option:has(input:checked) { border-color:#252525; background:#fbfaf8; }
+.payment-option > input { accent-color:#171717; width:16px; height:16px; margin:0; flex:0 0 auto; }
+.payment-icon { display:grid; place-items:center; width:45px; height:38px; border-radius:3px; font-size:11px; font-weight:700; flex:0 0 auto; }
+.cod-icon { background:#efeee9; color:#222; letter-spacing:.5px; }
+.bkash-icon { background:#fce7ef; color:#c2185b; }
+.nagad-icon { background:#fff0e3; color:#bd4d10; }
+.payment-content { flex:1; min-width:0; }
+.payment-content strong { display:block; font-size:13px; font-weight:600; }
+.payment-content small { display:block; margin-top:4px; color:var(--co-muted); font-size:11px; line-height:1.5; }
+.payment-check { color:#171717; opacity:0; font-size:15px; }
+.payment-option:has(input:checked) .payment-check { opacity:1; }
+.payment-details, .manual-payment-box { margin-top:16px; padding:18px; background:var(--co-soft); border:1px solid #ebe8e2; }
+.payment-details { display:flex; gap:12px; }
+.payment-details-icon { flex:0 0 26px; width:26px; height:26px; display:grid; place-items:center; background:#e6e4dd; border-radius:50%; font-size:12px; }
+.payment-details strong { font-size:13px; }
+.payment-details p, .manual-payment-title p { color:var(--co-muted); font-size:12px; line-height:1.7; margin:5px 0 0; }
+.manual-payment-header { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:20px; }
+.manual-payment-label, .step-label { font-size:9px; letter-spacing:1.8px; color:#777; }
+.manual-payment-title h3 { margin:6px 0 0; font-size:17px; font-weight:600; }
+.manual-payment-secure { display:flex; align-items:center; gap:6px; color:#666; font-size:10px; white-space:nowrap; }
+.secure-dot { width:6px; height:6px; border-radius:50%; background:#5c8b63; }
+.payment-step { display:grid; grid-template-columns:28px minmax(0,1fr); gap:12px; padding:17px 0; border-top:1px solid #e6e3dd; }
+.payment-step > .step-number { width:27px; height:27px; display:grid; place-items:center; border:1px solid #dedbd5; font-size:10px; }
+.step-content h4 { margin:5px 0 7px; font-size:13px; font-weight:600; }
+.step-content > p { margin:0 0 12px; font-size:12px; line-height:1.7; color:#686868; }
+.payment-amount-card, .payment-number-card { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:13px 14px; border:1px solid #e2dfd9; background:#fff; margin-top:12px; }
+.payment-amount-left span, .payment-number-info > span { display:block; font-size:9px; letter-spacing:1.2px; color:#777; margin-bottom:6px; }
+.payment-amount-left strong { font-size:22px; letter-spacing:-.5px; }
+.payment-number-info strong { display:block; font-size:15px; letter-spacing:.6px; overflow-wrap:anywhere; }
+.copy-number-btn { display:flex; align-items:center; gap:7px; flex:0 0 auto; padding:9px 11px; background:#fff; border:1px solid #d8d5cf; color:#222; font-size:11px; cursor:pointer; }
+.copy-number-btn:hover, .copy-number-btn.copied { background:#f1f0eb; }
+.payment-instruction { display:flex; gap:9px; align-items:flex-start; padding:12px; background:#fff; border:1px solid #e5e2dc; }
+.instruction-icon { display:grid; place-items:center; width:20px; height:20px; flex:0 0 auto; border-radius:50%; background:#e9e7e0; font-size:10px; }
+.payment-instruction p { margin:0; color:#555; font-size:12px; line-height:1.7; }
+.transaction-input-wrapper input { width:100%; border:1px solid #dcd9d2; background:#fff; padding:13px 14px; outline:none; font:inherit; font-size:13px; }
+.transaction-input-wrapper input:focus { border-color:#555; box-shadow:0 0 0 3px rgba(0,0,0,.045); }
+.payment-verification-note { display:flex; gap:10px; padding:13px; background:#f0f3ed; margin-top:12px; }
+.verification-icon { display:grid; place-items:center; width:22px; height:22px; flex:0 0 auto; border-radius:50%; background:#dce7d7; font-size:11px; }
+.payment-verification-note strong { font-size:11px; }
+.payment-verification-note p { margin:4px 0 0; color:#5e675a; font-size:11px; line-height:1.6; }
+.payment-security { display:flex; gap:10px; align-items:flex-start; padding:5px 2px 0; }
+.payment-security > span { font-size:15px; }
+.payment-security p { margin:0; color:#777; font-size:11px; line-height:1.7; }
+.checkout-action { margin-top:22px; }
+.place-order-btn { width:100%; display:flex; align-items:center; justify-content:space-between; gap:12px; border:0; background:#171717; color:#fff; padding:17px 19px; font:inherit; font-size:13px; cursor:pointer; transition:background .18s, transform .18s; }
+.place-order-btn:hover { background:#383838; }
+.place-order-btn:active { transform:scale(.995); }
+.place-order-btn:disabled { opacity:.65; cursor:wait; }
+.checkout-action > p { margin:11px 0 0; text-align:center; color:#858585; font-size:10px; line-height:1.7; }
+.checkout-summary { padding:24px; position:sticky; top:20px; }
+.summary-header { display:flex; justify-content:space-between; align-items:center; gap:12px; padding-bottom:19px; border-bottom:1px solid #eeece7; }
+.summary-header h2 { font-size:20px; margin:6px 0 0; font-weight:600; letter-spacing:-.5px; }
+.summary-count { display:grid; place-items:center; min-width:29px; height:29px; padding:0 7px; border:1px solid #e0ddd7; font-size:11px; }
+.summary-products { padding:5px 0; max-height:360px; overflow:auto; }
+.mini-line { display:flex; justify-content:space-between; align-items:flex-start; gap:14px; padding:15px 0; border-bottom:1px solid #f0eee9; }
+.mini-line:last-child { border-bottom:0; }
+.mini-line-info { min-width:0; }
+.mini-line-info strong { display:block; font-size:12px; line-height:1.5; font-weight:600; overflow-wrap:anywhere; }
+.mini-line-info small { display:block; color:#777; font-size:10px; line-height:1.7; margin-top:5px; }
+.mini-line > strong { flex:0 0 auto; font-size:12px; white-space:nowrap; }
+.checkout-summary hr { border:0; border-top:1px solid #e9e6e0; margin:4px 0 17px; }
+.summary-row { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin:13px 0; font-size:12px; color:#6e6e6e; }
+.summary-row span:last-child { text-align:right; }
+.summary-total { display:flex; justify-content:space-between; gap:12px; border-top:1px solid #e8e5df; padding-top:18px; margin-top:18px; font-size:14px; }
+.summary-total strong { font-size:19px; letter-spacing:-.4px; }
+.summary-trust { display:grid; gap:10px; margin-top:22px; padding-top:18px; border-top:1px solid #eeece7; color:#777; font-size:10px; }
+.summary-trust div { display:flex; gap:8px; align-items:center; }
+.summary-trust div::first-letter { color:#343434; }
+.checkout-back { display:inline-block; margin-top:17px; font-size:11px; color:#555; text-decoration:underline; }
+@media (max-width: 900px) {
+    .checkout-layout { grid-template-columns:minmax(0,1fr) 320px; gap:18px; }
+    .checkout-card { padding:20px; }
+    .checkout-summary { padding:20px; }
+}
+@media (max-width: 740px) {
+    .checkout-page { padding:25px 14px 50px; }
+    .checkout-layout { grid-template-columns:1fr; }
+    .checkout-summary { position:static; grid-row:1; }
+    .checkout-form { grid-row:2; }
+    .summary-products { max-height:280px; }
+}
+@media (max-width: 480px) {
+    .checkout-card { padding:17px; }
+    .checkout-form-grid { grid-template-columns:1fr; gap:15px; }
+    .checkout-field.full { grid-column:auto; }
+    .checkout-progress { gap:6px; font-size:10px; }
+    .checkout-progress i { width:16px; }
+    .payment-option { padding:12px 10px; gap:9px; }
+    .payment-icon { width:39px; height:35px; font-size:10px; }
+    .payment-content small { font-size:10px; }
+    .manual-payment-box { padding:13px; }
+    .payment-number-card { align-items:flex-start; }
+    .copy-number-btn { padding:8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .checkout-page *, .checkout-page *::before, .checkout-page *::after { transition:none !important; scroll-behavior:auto !important; }
+}
+</style>
+
+<div class="checkout-page">
+    <header class="checkout-hero">
+        <span class="checkout-eyebrow">SanDrop · Secure checkout</span>
+        <h1>Complete your order</h1>
+        <p>A few details, one final review, and your order is on its way.</p>
+        <div class="checkout-progress" aria-label="Checkout progress">
+            <span class="active"><b>1</b> Information</span>
+            <i></i>
+            <span class="active"><b>2</b> Payment</span>
+            <i></i>
+            <span><b>3</b> Confirmation</span>
+        </div>
+    </header>
+
+    <section class="checkout-layout">
+        <form class="checkout-form" method="post" id="checkoutForm">
+            <section class="checkout-card">
+                <div class="checkout-card-heading">
+                    <span class="checkout-step-number">01</span>
+                    <div>
+                        <h2>Customer information</h2>
+                        <p>Where should we deliver your order?</p>
+                    </div>
+                </div>
+
+                <div class="checkout-form-grid">
+                    <label class="checkout-field">
+                        Full name
+                        <input type="text" name="name" placeholder="Enter your full name" autocomplete="name" required>
+                    </label>
+                    <label class="checkout-field">
+                        Email address
+                        <input type="email" name="email" placeholder="you@example.com" autocomplete="email" required>
+                    </label>
+                    <label class="checkout-field full">
+                        Phone number
+                        <input type="tel" name="phone" placeholder="01XXXXXXXXX" autocomplete="tel" inputmode="tel" required>
+                    </label>
+                    <label class="checkout-field full">
+                        Delivery address
+                        <textarea name="address" rows="3" placeholder="House / Flat, Road, Area, City" autocomplete="street-address" required></textarea>
+                    </label>
+                </div>
+            </section>
+
+            <section class="checkout-card">
+                <div class="checkout-card-heading">
+                    <span class="checkout-step-number">02</span>
+                    <div>
+                        <h2>Payment method</h2>
+                        <p>Choose the payment option that works best for you.</p>
+                    </div>
+                </div>
+
+                <div class="payment-options">
+                    <label class="payment-option">
+                        <input type="radio" name="payment_method" value="cod" checked onchange="showPaymentMethod('cod')">
+                        <span class="payment-icon cod-icon">COD</span>
+                        <span class="payment-content">
+                            <strong>Cash on Delivery</strong>
+                            <small>Pay when your order arrives at your doorstep.</small>
+                        </span>
+                        <span class="payment-check" aria-hidden="true">✓</span>
+                    </label>
+
+                    <label class="payment-option">
+                        <input type="radio" name="payment_method" value="bkash" onchange="showPaymentMethod('bkash')">
+                        <span class="payment-icon bkash-icon">bKash</span>
+                        <span class="payment-content">
+                            <strong>bKash</strong>
+                            <small>Send the payment and enter your transaction ID.</small>
+                        </span>
+                        <span class="payment-check" aria-hidden="true">✓</span>
+                    </label>
+
+                    <label class="payment-option">
+                        <input type="radio" name="payment_method" value="nagad" onchange="showPaymentMethod('nagad')">
+                        <span class="payment-icon nagad-icon">Nagad</span>
+                        <span class="payment-content">
+                            <strong>Nagad</strong>
+                            <small>Send the payment and enter your transaction ID.</small>
+                        </span>
+                        <span class="payment-check" aria-hidden="true">✓</span>
+                    </label>
+                </div>
+
+                <div class="payment-details" id="codDetails">
+                    <span class="payment-details-icon">✓</span>
+                    <div>
+                        <strong>Cash on Delivery selected</strong>
+                        <p>Pay the order amount when your parcel is delivered. Please make sure your phone number and address are correct.</p>
+                    </div>
+                </div>
+
+                <div id="bkashBox" class="manual-payment-box" hidden>
+                    <div class="manual-payment-header">
+                        <div class="manual-payment-title">
+                            <span class="manual-payment-label">MANUAL PAYMENT</span>
+                            <h3>Pay with bKash</h3>
+                            <p>Send the exact amount to the official SanDrop payment number.</p>
+                        </div>
+                        <div class="manual-payment-secure"><span class="secure-dot"></span> Verify details</div>
+                    </div>
+
+                    <div class="payment-step">
+                        <span class="step-number">01</span>
+                        <div class="step-content">
+                            <span class="step-label">PAYMENT AMOUNT</span>
+                            <h4>Send this amount</h4>
+                            <div class="payment-amount-card">
+                                <div class="payment-amount-left">
+                                    <span>AMOUNT TO SEND · BDT</span>
+                                    <strong>৳{{ "{:,.0f}".format(total) }}</strong>
+                                </div>
+                            </div>
+                            <div class="payment-number-card">
+                                <div class="payment-number-info">
+                                    <span>BKASH PAYMENT NUMBER</span>
+                                    <strong id="bkashNumber">01XXXXXXXXX</strong>
+                                </div>
+                                <button type="button" class="copy-number-btn" onclick="copyPaymentNumber('bkashNumber', this)">⧉ <span>Copy</span></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="payment-step">
+                        <span class="step-number">02</span>
+                        <div class="step-content">
+                            <span class="step-label">COMPLETE PAYMENT</span>
+                            <h4>Pay using your bKash app</h4>
+                            <p>Follow your intended payment flow and confirm the recipient and amount before sending. Do not send money to an unverified number.</p>
+                        </div>
+                    </div>
+
+                    <div class="payment-step">
+                        <span class="step-number">03</span>
+                        <div class="step-content">
+                            <span class="step-label">TRANSACTION DETAILS</span>
+                            <h4>Enter your Transaction ID</h4>
+                            <p>Enter the transaction ID shown in your payment confirmation.</p>
+                            <div class="transaction-input-wrapper">
+                                <input type="text" name="bkash_transaction_id" id="bkashTransaction" placeholder="Enter bKash Transaction ID" autocomplete="off" disabled>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="payment-verification-note">
+                        <span class="verification-icon">✓</span>
+                        <div><strong>Payment verification</strong><p>Your order should be processed only after the payment details have been checked.</p></div>
+                    </div>
+                </div>
+
+                <div id="nagadBox" class="manual-payment-box" hidden>
+                    <div class="manual-payment-header">
+                        <div class="manual-payment-title">
+                            <span class="manual-payment-label">MANUAL PAYMENT</span>
+                            <h3>Pay with Nagad</h3>
+                            <p>Send the exact amount to the official SanDrop payment number.</p>
+                        </div>
+                        <div class="manual-payment-secure"><span class="secure-dot"></span> Verify details</div>
+                    </div>
+
+                    <div class="payment-step">
+                        <span class="step-number">01</span>
+                        <div class="step-content">
+                            <span class="step-label">PAYMENT AMOUNT</span>
+                            <h4>Send this amount</h4>
+                            <div class="payment-amount-card">
+                                <div class="payment-amount-left">
+                                    <span>AMOUNT TO SEND · BDT</span>
+                                    <strong>৳{{ "{:,.0f}".format(total) }}</strong>
+                                </div>
+                            </div>
+                            <div class="payment-number-card">
+                                <div class="payment-number-info">
+                                    <span>NAGAD PAYMENT NUMBER</span>
+                                    <strong id="nagadNumber">01XXXXXXXXX</strong>
+                                </div>
+                                <button type="button" class="copy-number-btn" onclick="copyPaymentNumber('nagadNumber', this)">⧉ <span>Copy</span></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="payment-step">
+                        <span class="step-number">02</span>
+                        <div class="step-content">
+                            <span class="step-label">COMPLETE PAYMENT</span>
+                            <h4>Pay using your Nagad app</h4>
+                            <p>Follow your intended payment flow and confirm the recipient and amount before sending. Do not send money to an unverified number.</p>
+                        </div>
+                    </div>
+
+                    <div class="payment-step">
+                        <span class="step-number">03</span>
+                        <div class="step-content">
+                            <span class="step-label">TRANSACTION DETAILS</span>
+                            <h4>Enter your Transaction ID</h4>
+                            <p>Enter the transaction ID shown in your payment confirmation.</p>
+                            <div class="transaction-input-wrapper">
+                                <input type="text" name="nagad_transaction_id" id="nagadTransaction" placeholder="Enter Nagad Transaction ID" autocomplete="off" disabled>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="payment-verification-note">
+                        <span class="verification-icon">✓</span>
+                        <div><strong>Payment verification</strong><p>Your order should be processed only after the payment details have been checked.</p></div>
+                    </div>
+                </div>
+
+                <div class="payment-security">
+                    <span aria-hidden="true">🔒</span>
+                    <p>Only submit payment details that relate to this order. SanDrop will use your information to process and verify your order.</p>
+                </div>
+            </section>
+
+            <div class="checkout-action">
+                <button class="place-order-btn" type="submit" id="placeOrderButton">
+                    <span id="placeOrderLabel">Place order</span>
+                    <strong>৳{{ "{:,.0f}".format(total) }} &nbsp; ↗</strong>
+                </button>
+                <p>By placing your order, you confirm that the information provided is correct.</p>
+            </div>
+        </form>
+
+        <aside class="checkout-summary">
+            <div class="summary-header">
+                <div>
+                    <span class="checkout-eyebrow">YOUR BAG</span>
+                    <h2>Order summary</h2>
+                </div>
+                <span class="summary-count">{{ items|length }}</span>
+            </div>
+
+            <div class="summary-products">
+                {% for i in items %}
+                <div class="mini-line">
+                    <div class="mini-line-info">
+                        <strong>{{ i.product.name }}</strong>
+                        <small>
+                            Qty {{ i.qty }}
+                            {% if i.size %} · Size: {{ i.size }}{% endif %}
+                            {% if i.color %} · Color: {{ i.color }}{% endif %}
+                        </small>
+                    </div>
+                    <strong>৳{{ "{:,.0f}".format(i.subtotal) }}</strong>
+                </div>
+                {% endfor %}
+            </div>
+
+            <hr>
+            <div class="summary-row"><span>Subtotal</span><strong>৳{{ "{:,.0f}".format(total) }}</strong></div>
+            <div class="summary-row"><span>Delivery</span><span>Calculated separately</span></div>
+            <div class="summary-total"><span>Total</span><strong>৳{{ "{:,.0f}".format(total) }}</strong></div>
+
+            <div class="summary-trust">
+                <div>✓ &nbsp; Clear order summary</div>
+                <div>✓ &nbsp; Size and color details included</div>
+                <div>✓ &nbsp; Payment method of your choice</div>
+            </div>
+            <a class="checkout-back" href="{{ url_for('cart') }}">← Return to your bag</a>
+        </aside>
+    </section>
+</div>
+
+<script>
+function showPaymentMethod(method) {
+    const codDetails = document.getElementById("codDetails");
+    const bkashBox = document.getElementById("bkashBox");
+    const nagadBox = document.getElementById("nagadBox");
+    const bkashInput = document.getElementById("bkashTransaction");
+    const nagadInput = document.getElementById("nagadTransaction");
+
+    codDetails.hidden = method !== "cod";
+    bkashBox.hidden = method !== "bkash";
+    nagadBox.hidden = method !== "nagad";
+
+    bkashInput.disabled = method !== "bkash";
+    bkashInput.required = method === "bkash";
+    nagadInput.disabled = method !== "nagad";
+    nagadInput.required = method === "nagad";
+}
+
+async function copyPaymentNumber(numberId, button) {
+    const number = document.getElementById(numberId).textContent.trim();
+
+    if (!number || number.includes("X")) {
+        alert("Please add your real payment number in checkout.html first.");
+        return;
+    }
+
+    try {
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(number);
+        } else {
+            const field = document.createElement("textarea");
+            field.value = number;
+            field.style.position = "fixed";
+            field.style.opacity = "0";
+            document.body.appendChild(field);
+            field.select();
+            const copied = document.execCommand("copy");
+            field.remove();
+            if (!copied) throw new Error("Copy failed");
+        }
+
+        const original = button.innerHTML;
+        button.innerHTML = "✓ <span>Copied</span>";
+        button.classList.add("copied");
+        window.setTimeout(() => {
+            button.innerHTML = original;
+            button.classList.remove("copied");
+        }, 1800);
+    } catch (error) {
+        alert("Could not copy automatically. Please copy the number manually.");
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    const selected = document.querySelector('input[name="payment_method"]:checked');
+    showPaymentMethod(selected ? selected.value : "cod");
+
+    const form = document.getElementById("checkoutForm");
+    const button = document.getElementById("placeOrderButton");
+    const label = document.getElementById("placeOrderLabel");
+    let submitting = false;
+
+    form.addEventListener("submit", function (event) {
+        if (submitting) {
+            event.preventDefault();
+            return;
+        }
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+        submitting = true;
+        button.disabled = true;
+        label.textContent = "Submitting order…";
+    });
+});
+</script>
+{% endblock %}

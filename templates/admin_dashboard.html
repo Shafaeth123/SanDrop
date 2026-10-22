@@ -1,0 +1,637 @@
+
+{% extends "admin_base.html" %}
+
+{% block content %}
+
+<style>
+.dashboard-page {
+    display: grid;
+    gap: 24px;
+}
+
+.dashboard-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.dashboard-heading h1 {
+    margin: 5px 0;
+    font-size: clamp(26px, 4vw, 36px);
+}
+
+.dashboard-subtitle {
+    color: #777;
+    font-size: 13px;
+}
+
+.dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.dashboard-card {
+    background: #fff;
+    border: 1px solid #e9e4dc;
+    border-radius: 15px;
+    padding: 20px;
+    min-width: 0;
+}
+
+.dashboard-card span {
+    display: block;
+    color: #777;
+    font-size: 12px;
+    margin-bottom: 12px;
+}
+
+.dashboard-card strong {
+    font-size: clamp(20px, 2.5vw, 28px);
+    overflow-wrap: anywhere;
+}
+
+.dashboard-card small {
+    display: block;
+    color: #888;
+    margin-top: 8px;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(280px, 1fr);
+    gap: 20px;
+}
+
+.dashboard-panel {
+    background: #fff;
+    border: 1px solid #e9e4dc;
+    border-radius: 16px;
+    padding: 22px;
+    min-width: 0;
+}
+
+.dashboard-panel h2 {
+    font-size: 18px;
+    margin: 0;
+}
+
+.dashboard-panel-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 22px;
+}
+
+.dashboard-panel-head a {
+    font-size: 12px;
+    text-decoration: none;
+}
+
+.sales-chart {
+    height: 230px;
+    display: flex;
+    align-items: stretch;
+    gap: 12px;
+    border-bottom: 1px solid #e9e4dc;
+    padding-top: 12px;
+}
+
+.sales-day {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+}
+
+.sales-amount {
+    font-size: 10px;
+    color: #777;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+
+.sales-bar-area {
+    height: 155px;
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.sales-bar {
+    width: min(34px, 80%);
+    min-height: 3px;
+    background: #242424;
+    border-radius: 6px 6px 0 0;
+}
+
+.sales-date {
+    font-size: 10px;
+    color: #777;
+    white-space: nowrap;
+    padding-bottom: 10px;
+}
+
+.status-list {
+    display: grid;
+    gap: 17px;
+}
+
+.status-item {
+    display: grid;
+    gap: 8px;
+}
+
+.status-label {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 13px;
+}
+
+.status-track {
+    height: 7px;
+    background: #f0ede8;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.status-fill {
+    height: 100%;
+    background: #383838;
+    border-radius: 20px;
+}
+
+.stock-list {
+    display: grid;
+    gap: 0;
+}
+
+.stock-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 13px 0;
+    border-bottom: 1px solid #eee9e2;
+}
+
+.stock-item:last-child {
+    border-bottom: 0;
+}
+
+.stock-name {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.stock-id {
+    font-size: 11px;
+    color: #888;
+    margin-top: 4px;
+}
+
+.stock-count {
+    color: #a33a2b;
+    background: #fff0ed;
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.dashboard-table-wrap {
+    overflow-x: auto;
+}
+
+.dashboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 540px;
+}
+
+.dashboard-table th,
+.dashboard-table td {
+    padding: 14px 12px;
+    text-align: left;
+    border-bottom: 1px solid #eee9e2;
+    font-size: 12px;
+}
+
+.dashboard-table th {
+    color: #777;
+    font-weight: 500;
+}
+
+.dashboard-table td {
+    color: #333;
+}
+
+.dashboard-empty {
+    color: #888;
+    font-size: 13px;
+    padding: 20px 0;
+}
+
+@media (max-width: 1100px) {
+    .dashboard-stats {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 760px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .dashboard-panel {
+        padding: 16px;
+    }
+
+    .sales-chart {
+        gap: 6px;
+    }
+}
+</style>
+
+<div class="dashboard-page">
+
+    <div class="dashboard-heading">
+        <div>
+            <span class="eyebrow">OVERVIEW</span>
+            <h1>Dashboard</h1>
+            <p class="dashboard-subtitle">
+                Your store performance at a glance.
+            </p>
+        </div>
+    </div>
+
+    <!-- OVERVIEW CARDS -->
+    <div class="dashboard-stats">
+
+        <div class="dashboard-card">
+            <span>Total Products</span>
+            <strong>{{ stats.products }}</strong>
+            <small>Products in store</small>
+        </div>
+
+        <div class="dashboard-card">
+            <span>Total Customers</span>
+            <strong>{{ stats.customers }}</strong>
+            <small>Registered customers</small>
+        </div>
+
+        <div class="dashboard-card">
+            <span>Total Orders</span>
+            <strong>{{ stats.orders }}</strong>
+            <small>All-time orders</small>
+        </div>
+
+        <div class="dashboard-card">
+            <span>Total Revenue</span>
+            <strong>৳{{ "{:,.0f}".format(stats.revenue) }}</strong>
+            <small>All recorded orders</small>
+        </div>
+
+        <div class="dashboard-card">
+            <span>Low Stock</span>
+            <strong>{{ stats.low_stock }}</strong>
+            <small>Products with stock ≤ 5</small>
+        </div>
+
+    </div>
+
+<!-- PROFIT ANALYTICS -->
+ 
+<!-- ADMIN NOTIFICATIONS -->
+<section class="dashboard-panel">
+    <div class="dashboard-panel-head">
+        <h2>Admin Notifications</h2>
+        <span class="dashboard-subtitle">Action required</span>
+    </div>
+
+    <div class="dashboard-stats" style="grid-template-columns: repeat(2, minmax(0, 1fr));">
+
+        <div class="dashboard-card">
+            <span>Pending Orders</span>
+            <strong>{{ new_orders_count }}</strong>
+            <small>
+                <a href="{{ url_for('admin_orders', status='Pending') }}">
+                    Review pending orders
+                </a>
+            </small>
+        </div>
+
+        <div class="dashboard-card">
+            <span>Low Stock Products</span>
+            <strong>{{ low_stock_count }}</strong>
+            <small>
+                <a href="{{ url_for('admin_products', stock='low') }}">
+                    View low stock products
+                </a>
+            </small>
+        </div>
+
+    </div>
+
+    <h3 style="margin-top: 24px;">Recent Pending Orders</h3>
+
+    {% if recent_notifications %}
+    <div class="stock-list">
+        {% for n in recent_notifications %}
+        <div class="stock-item">
+            <div>
+                <div class="stock-name">Order #{{ n.id }}</div>
+                <div class="stock-id">
+                    {{ n.created_at[:16].replace('T', ' ') }}
+                </div>
+            </div>
+
+            <div class="stock-count">
+                ৳{{ "{:,.2f}".format(n.total) }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="dashboard-empty">No pending orders.</p>
+    {% endif %}
+</section>
+
+<section class="dashboard-panel">
+    <div class="dashboard-panel-head">
+        <h2>Profit Analytics</h2>
+        <span class="dashboard-subtitle">Selected period</span>
+    </div>
+
+    <div class="dashboard-stats" style="grid-template-columns: repeat(3, minmax(0, 1fr));">
+        <div class="dashboard-card">
+            <span>Total Sales</span>
+            <strong>৳{{ "{:,.2f}".format(profit_stats.sales) }}</strong>
+            <small>Excluding cancelled orders</small>
+        </div>
+
+        <div class="dashboard-card">
+            <span>Total Cost</span>
+            <strong>৳{{ "{:,.2f}".format(profit_stats.cost) }}</strong>
+            <small>Product buying cost</small>
+        </div>
+
+        <div class="dashboard-card">
+            <span>Gross Profit</span>
+            <strong>৳{{ "{:,.2f}".format(profit_stats.profit) }}</strong>
+            <small>Sales minus product cost</small>
+        </div>
+    </div>
+</section>
+
+   
+
+<!-- SALES FILTER -->
+<section class="dashboard-panel">
+    <div class="dashboard-panel-head">
+        <h2>Sales Filter</h2>
+
+        <a href="{{ url_for('admin_export_orders') }}"
+           style="display:inline-block;padding:10px 15px;
+           background:#242424;color:white;border-radius:8px;
+           text-decoration:none;font-size:12px;">
+            Download Orders CSV
+        </a>
+    </div>
+
+
+    <form method="GET" action="{{ url_for('admin_dashboard') }}"
+          style="display:flex;gap:12px;flex-wrap:wrap;align-items:end;">
+
+        <div>
+            <label for="period">Period</label>
+            <select name="period" id="period"
+                    onchange="document.getElementById('custom-dates').style.display = this.value === 'custom' ? 'flex' : 'none';"
+                    style="display:block;padding:10px;border:1px solid #ddd;border-radius:8px;margin-top:6px;">
+                <option value="today" {% if period == 'today' %}selected{% endif %}>Today</option>
+                <option value="7days" {% if period == '7days' %}selected{% endif %}>Last 7 Days</option>
+                <option value="30days" {% if period == '30days' %}selected{% endif %}>Last 30 Days</option>
+                <option value="all" {% if period == 'all' %}selected{% endif %}>All Time</option>
+                <option value="custom" {% if period == 'custom' %}selected{% endif %}>Custom Dates</option>
+            </select>
+        </div>
+
+        <div id="custom-dates"
+             style="display:{% if period == 'custom' %}flex{% else %}none{% endif %};gap:10px;flex-wrap:wrap;">
+
+            <div>
+                <label for="date_from">From</label>
+                <input type="date" id="date_from" name="date_from"
+                       value="{{ date_from }}"
+                       style="display:block;padding:9px;border:1px solid #ddd;border-radius:8px;margin-top:6px;">
+            </div>
+
+            <div>
+                <label for="date_to">To</label>
+                <input type="date" id="date_to" name="date_to"
+                       value="{{ date_to }}"
+                       style="display:block;padding:9px;border:1px solid #ddd;border-radius:8px;margin-top:6px;">
+            </div>
+        </div>
+
+        <button type="submit"
+                style="padding:11px 18px;border:0;border-radius:8px;background:#242424;color:white;cursor:pointer;">
+            Apply Filter
+        </button>
+    </form>
+
+    <p class="dashboard-subtitle" style="margin-top:14px;">
+        Revenue excludes cancelled orders.
+    </p>
+</section>
+
+<!-- SALES CHART + ORDER STATUS -->
+<div class="dashboard-grid">
+
+
+        <section class="dashboard-panel">
+            <div class="dashboard-panel-head">
+                <h2>Sales — Last 7 Days</h2>
+                <span class="dashboard-subtitle">Revenue (৳)</span>
+            </div>
+
+            {% set max_revenue = sales_chart | map(attribute='revenue') | max | default(0) %}
+
+            <div class="sales-chart">
+                {% for day in sales_chart %}
+                <div class="sales-day">
+
+                    <div class="sales-amount">
+                        {{ "{:,.0f}".format(day.revenue) }}
+                    </div>
+
+                    <div class="sales-bar-area">
+                        <div
+                            class="sales-bar"
+                            style="height: {{ (day.revenue / max_revenue * 100) if max_revenue else 0 }}%;"
+                            title="৳{{ '{:,.0f}'.format(day.revenue) }}">
+                        </div>
+                    </div>
+
+                    <div class="sales-date">{{ day.date }}</div>
+
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="dashboard-panel">
+            <div class="dashboard-panel-head">
+                <h2>Order Status</h2>
+                <a href="{{ url_for('admin_orders') }}">View orders</a>
+            </div>
+
+            {% set total_status_orders = order_status.values() | sum %}
+
+            <div class="status-list">
+                {% for name, count in order_status.items() %}
+                <div class="status-item">
+
+                    <div class="status-label">
+                        <span>{{ name }}</span>
+                        <strong>{{ count }}</strong>
+                    </div>
+
+                    <div class="status-track">
+                        <div
+                            class="status-fill"
+                            style="width: {{ (count / total_status_orders * 100) if total_status_orders else 0 }}%;">
+                        </div>
+                    </div>
+
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+    </div>
+
+<!-- TOP SELLING PRODUCTS -->
+<section class="dashboard-panel">
+    <div class="dashboard-panel-head">
+        <h2>Top Selling Products</h2>
+        <span class="dashboard-subtitle">Selected period</span>
+    </div>
+
+    {% if top_products %}
+    <div class="dashboard-table-wrap">
+        <table class="dashboard-table">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Product</th>
+                    <th>Units Sold</th>
+                    <th>Sales</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for p in top_products %}
+                <tr>
+                    <td>#{{ loop.index }}</td>
+                    <td>
+                        <a href="{{ url_for('admin_products') }}?search={{ p.name | urlencode }}">
+                            {{ p.name }}
+                        </a>
+                    </td>
+                    <td>{{ p.units_sold }}</td>
+                    <td>৳{{ "{:,.2f}".format(p.sales) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="dashboard-empty">
+        No product sales found for this period.
+    </p>
+    {% endif %}
+</section>
+
+    <!-- LOW STOCK ALERT -->
+    <section class="dashboard-panel">
+        <div class="dashboard-panel-head">
+            <h2>Low Stock Alert</h2>
+            <a href="{{ url_for('admin_products', stock='low') }}">View products</a>
+        </div>
+
+        {% if low_stock_products %}
+        <div class="stock-list">
+            {% for p in low_stock_products %}
+            <div class="stock-item">
+                <div>
+                    <div class="stock-name">{{ p.name }}</div>
+                    <div class="stock-id">Product #{{ p.id }}</div>
+                </div>
+
+                <div class="stock-count">
+                    {{ p.stock }} left
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="dashboard-empty">
+            All products have sufficient stock.
+        </p>
+        {% endif %}
+    </section>
+
+    <!-- RECENT ORDERS -->
+    <section class="dashboard-panel">
+        <div class="dashboard-panel-head">
+            <h2>Recent Orders</h2>
+            <a href="{{ url_for('admin_orders') }}">View all</a>
+        </div>
+
+        <div class="dashboard-table-wrap">
+            <table class="dashboard-table">
+                <thead>
+                    <tr>
+                        <th>Order</th>
+                        <th>Customer</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for o in recent %}
+                    <tr>
+                        <td>#{{ o.id }}</td>
+                        <td>{{ o.name }}</td>
+                        <td>৳{{ "{:,.0f}".format(o.total) }}</td>
+                        <td><span class="status">{{ o.status }}</span></td>
+                        <td>{{ o.created_at[:16].replace('T', ' ') }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5">No orders yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+</div>
+
+{% endblock %}

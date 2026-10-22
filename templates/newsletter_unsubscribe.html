@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Newsletter Preferences — SanOrop{% endblock %}
+{% block content %}
+<section class="feature-page">
+  <span class="eyebrow">SANDROP NOTES</span>
+  {% if status == "done" %}
+    <h1>You're unsubscribed</h1><p>{{ email }} will no longer receive newsletter emails.</p>
+  {% elif status == "invalid" %}
+    <h1>Link not found</h1><p>This unsubscribe link is invalid or has expired.</p>
+  {% else %}
+    <h1>Unsubscribe from emails?</h1><p>Confirm that you want to unsubscribe {{ email }} from SanDrop Notes.</p>
+    <form method="post" action="{{ url_for('features.newsletter_unsubscribe', token=token) }}"><button class="btn dark" type="submit">Unsubscribe</button></form>
+  {% endif %}
+</section>
+{% endblock %}

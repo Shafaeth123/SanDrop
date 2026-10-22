@@ -1,0 +1,165 @@
+
+{% extends "admin_base.html" %}
+{% block content %}
+
+<div class="admin-heading">
+    <div>
+        <span class="eyebrow">CUSTOMER MANAGEMENT</span>
+        <h1>Customer Details</h1>
+        <p>View customer information and complete order history.</p>
+    </div>
+
+    <a href="{{ url_for('admin_customers') }}" class="btn">
+        ← Back to Customers
+    </a>
+</div>
+
+<!-- Customer Information -->
+<section class="admin-panel" style="margin-bottom:24px;">
+    <h2 style="margin-top:0;">Customer Information</h2>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:20px;">
+
+        <div>
+            <small>Name</small>
+            <h3>{{ customer.name }}</h3>
+        </div>
+
+        <div>
+            <small>Email</small>
+            <p>{{ customer.email }}</p>
+        </div>
+
+        <div>
+            <small>Phone</small>
+            <p>{{ customer.phone }}</p>
+        </div>
+
+        <div>
+            <small>Joined</small>
+            <p>{{ customer.created_at[:10] if customer.created_at else '—' }}</p>
+        </div>
+
+        <div>
+            <small>Total Orders</small>
+            <h3>{{ total_orders }}</h3>
+        </div>
+
+        <div>
+            <small>Total Spending</small>
+            <h3>৳{{ "{:,.2f}".format(total_spending) }}</h3>
+        </div>
+
+        <div style="grid-column:1/-1;">
+            <small>Delivery Address</small>
+            <p>{{ customer.address }}</p>
+        </div>
+
+    </div>
+</section>
+
+<!-- Order History -->
+<section class="admin-panel">
+    <h2 style="margin-top:0;">Order History</h2>
+
+    {% for order in orders %}
+
+    <div style="border:1px solid #e5e5e5; border-radius:12px; padding:20px; margin-bottom:20px;">
+
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:14px;">
+
+            <div>
+                <h3 style="margin:0 0 8px;">
+                    Order #{{ order.id }}
+                </h3>
+
+                <p style="margin:4px 0;">
+                    Date:
+                    {{ order.created_at[:16].replace('T',' ') if order.created_at else '—' }}
+                </p>
+
+                <p style="margin:4px 0;">
+                    Payment:
+                    {{ order.payment_method|upper }}
+                </p>
+
+                {% if order.transaction_id %}
+                <p style="margin:4px 0;">
+                    Transaction ID: {{ order.transaction_id }}
+                </p>
+                {% endif %}
+            </div>
+
+            <div style="text-align:right;">
+                <h3 style="margin:0 0 8px;">
+                    ৳{{ "{:,.2f}".format(order.total) }}
+                </h3>
+
+                <strong>{{ order.status }}</strong>
+            </div>
+
+        </div>
+
+        <hr style="border:0; border-top:1px solid #eee; margin:18px 0;">
+
+        <h4>Purchased Products</h4>
+
+        {% for item in items_by_order.get(order.id, []) %}
+
+        <div style="display:flex; align-items:center; gap:14px; padding:12px 0; border-bottom:1px solid #f0f0f0;">
+
+            {% if item.product_image %}
+                {% if item.product_image.startswith('http') %}
+                    <img
+                        src="{{ item.product_image }}"
+                        alt="{{ item.product_name }}"
+                        style="width:65px; height:75px; object-fit:cover; border-radius:8px;"
+                    >
+                {% else %}
+                    <img
+                        src="{{ url_for('static', filename=item.product_image) }}"
+                        alt="{{ item.product_name }}"
+                        style="width:65px; height:75px; object-fit:cover; border-radius:8px;"
+                    >
+                {% endif %}
+            {% endif %}
+
+            <div style="flex:1; min-width:0;">
+                <strong>{{ item.product_name }}</strong>
+
+                <p style="margin:5px 0; color:#666;">
+                    Quantity: {{ item.quantity }}
+                    {% if item.size %} · Size: {{ item.size }}{% endif %}
+                    {% if item.color %} · Color: {{ item.color }}{% endif %}
+                </p>
+
+                <p style="margin:0;">
+                    Unit Price:
+                    ৳{{ "{:,.2f}".format(item.price) }}
+                </p>
+            </div>
+
+            <strong>
+                ৳{{ "{:,.2f}".format(item.price * item.quantity) }}
+            </strong>
+
+        </div>
+
+        {% else %}
+            <p>No product details available for this order.</p>
+        {% endfor %}
+
+    </div>
+
+    {% else %}
+
+    <div style="text-align:center; padding:35px 15px;">
+        <h3>No Orders Yet</h3>
+        <p>This customer has no order history.</p>
+    </div>
+
+    {% endfor %}
+
+</section>
+
+{% endblock %}

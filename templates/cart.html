@@ -1,0 +1,442 @@
+
+{% extends "base.html" %}
+{% block title %}Your Bag — SanDrop{% endblock %}
+
+{% block content %}
+
+<style>
+.cart-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 35px 20px 70px;
+    color: #222;
+}
+
+.cart-heading {
+    margin-bottom: 30px;
+}
+
+.cart-heading .eyebrow {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: #777;
+}
+
+.cart-heading h1 {
+    font-size: clamp(32px, 5vw, 48px);
+    margin: 10px 0;
+    font-weight: 600;
+    letter-spacing: -1.5px;
+}
+
+.cart-heading p {
+    color: #777;
+    margin: 0;
+}
+
+.cart-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 330px;
+    gap: 35px;
+    align-items: start;
+}
+
+.cart-list {
+    border-top: 1px solid #e8e8e8;
+}
+
+.cart-item {
+    display: grid;
+    grid-template-columns: 125px minmax(0, 1fr) auto;
+    gap: 20px;
+    align-items: start;
+    padding: 24px 0;
+    border-bottom: 1px solid #e8e8e8;
+}
+
+.cart-image {
+    width: 125px;
+    height: 150px;
+    object-fit: cover;
+    background: #f5f5f3;
+    border-radius: 3px;
+}
+
+.cart-details {
+    min-width: 0;
+}
+
+.cart-category {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #888;
+}
+
+.cart-details h3 {
+    font-size: 17px;
+    font-weight: 600;
+    margin: 7px 0;
+}
+
+.cart-price {
+    font-size: 14px;
+    margin-bottom: 12px;
+}
+
+.cart-option {
+    font-size: 13px;
+    color: #666;
+    margin: 5px 0;
+}
+
+.cart-actions {
+    display: flex;
+    gap: 9px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 15px;
+}
+
+.cart-quantity {
+    width: 75px;
+    height: 38px;
+    padding: 5px 8px;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 2px;
+}
+
+.cart-btn {
+    height: 38px;
+    padding: 0 14px;
+    border: 1px solid #222;
+    background: #222;
+    color: white;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.cart-btn:hover {
+    background: #444;
+}
+
+.cart-remove {
+    border: none;
+    background: transparent;
+    color: #888;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 8px 0;
+    font-size: 12px;
+}
+
+.cart-remove:hover {
+    color: #b42318;
+}
+
+.cart-subtotal {
+    font-size: 15px;
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+.cart-summary {
+    border: 1px solid #e8e8e8;
+    padding: 25px;
+    background: #fff;
+    position: sticky;
+    top: 20px;
+}
+
+.cart-summary h2 {
+    font-size: 21px;
+    margin: 0 0 22px;
+}
+
+.summary-line {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 15px 0;
+    font-size: 13px;
+    color: #666;
+}
+
+.summary-line strong {
+    color: #222;
+    text-align: right;
+}
+
+.summary-total {
+    border-top: 1px solid #e8e8e8;
+    padding-top: 18px;
+    margin-top: 20px;
+    font-size: 16px;
+    color: #222;
+}
+
+.checkout-btn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 16px 18px;
+    margin-top: 22px;
+    background: #171717;
+    color: white;
+    text-decoration: none;
+    font-size: 13px;
+    transition: background .2s;
+}
+
+.checkout-btn:hover {
+    background: #383838;
+}
+
+.continue-shopping {
+    display: inline-block;
+    margin-top: 20px;
+    color: #555;
+    font-size: 13px;
+    text-decoration: underline;
+}
+
+.empty-cart {
+    padding: 65px 20px;
+    text-align: center;
+    border: 1px solid #eee;
+}
+
+.empty-cart h2 {
+    font-size: 25px;
+    margin-bottom: 10px;
+}
+
+.empty-cart p {
+    color: #777;
+    margin-bottom: 25px;
+}
+
+.empty-cart a {
+    display: inline-block;
+    padding: 13px 24px;
+    background: #171717;
+    color: white;
+    text-decoration: none;
+    font-size: 13px;
+}
+
+@media (max-width: 800px) {
+    .cart-layout {
+        grid-template-columns: 1fr;
+        gap: 25px;
+    }
+
+    .cart-summary {
+        position: static;
+    }
+}
+
+@media (max-width: 500px) {
+    .cart-page {
+        padding: 25px 14px 45px;
+    }
+
+    .cart-item {
+        grid-template-columns: 90px minmax(0, 1fr);
+        gap: 13px;
+        padding: 18px 0;
+    }
+
+    .cart-image {
+        width: 90px;
+        height: 115px;
+    }
+
+    .cart-subtotal {
+        grid-column: 2;
+        margin-top: -5px;
+    }
+
+    .cart-details h3 {
+        font-size: 15px;
+    }
+
+    .cart-actions {
+        gap: 7px;
+    }
+
+    .cart-quantity {
+        width: 65px;
+    }
+
+    .cart-summary {
+        padding: 20px;
+    }
+}
+</style>
+
+<section class="cart-page">
+
+    <header class="cart-heading">
+        <span class="eyebrow">SANDROP / YOUR BAG</span>
+        <h1>Your bag</h1>
+        <p>Review your selections before checkout.</p>
+    </header>
+
+    {% if items %}
+
+    <section class="cart-layout">
+
+        <div class="cart-list">
+
+            {% for i in items %}
+
+            <article class="cart-item">
+
+                {% if i.product.image.startswith('uploads/') %}
+                    <img
+                        class="cart-image"
+                        src="{{ url_for('static', filename=i.product.image) }}"
+                        alt="{{ i.product.name }}"
+                    >
+                {% else %}
+                    <img
+                        class="cart-image"
+                        src="{{ i.product.image }}"
+                        alt="{{ i.product.name }}"
+                    >
+                {% endif %}
+
+                <div class="cart-details">
+
+                    <span class="cart-category">
+                        {{ i.product.category }}
+                    </span>
+
+                    <h3>{{ i.product.name }}</h3>
+
+                    <div class="cart-price">
+                        ৳{{ "{:,.0f}".format(i.product.price) }} each
+                    </div>
+
+                    {% if i.size %}
+                    <p class="cart-option">
+                        Size: <strong>{{ i.size }}</strong>
+                    </p>
+                    {% endif %}
+
+                    {% if i.color %}
+                    <p class="cart-option">
+                        Color: <strong>{{ i.color }}</strong>
+                    </p>
+                    {% endif %}
+
+                    <form
+                        method="post"
+                        action="{{ url_for('update_cart') }}"
+                        class="cart-actions"
+                    >
+
+                        <input
+                            type="hidden"
+                            name="cart_key"
+                            value="{{ i.cart_key }}"
+                        >
+
+                        <input
+                            class="cart-quantity"
+                            type="number"
+                            name="quantity"
+                            min="0"
+                            max="{{ i.product.stock }}"
+                            value="{{ i.qty }}"
+                            aria-label="Quantity"
+                            required
+                        >
+
+                        <button class="cart-btn" type="submit">
+                            Update
+                        </button>
+
+                    </form>
+
+                    <form
+                        method="post"
+                        action="{{ url_for('remove_cart') }}"
+                    >
+                        <input
+                            type="hidden"
+                            name="cart_key"
+                            value="{{ i.cart_key }}"
+                        >
+
+                        <button class="cart-remove" type="submit">
+                            Remove item
+                        </button>
+                    </form>
+
+                </div>
+
+                <strong class="cart-subtotal">
+                    ৳{{ "{:,.0f}".format(i.subtotal) }}
+                </strong>
+
+            </article>
+
+            {% endfor %}
+
+            <a class="continue-shopping"
+               href="{{ url_for('shop') }}">
+                ← Continue shopping
+            </a>
+
+        </div>
+
+        <aside class="cart-summary">
+
+            <h2>Order summary</h2>
+
+            <div class="summary-line">
+                <span>Subtotal</span>
+                <strong>৳{{ "{:,.0f}".format(total) }}</strong>
+            </div>
+
+            <div class="summary-line">
+                <span>Delivery</span>
+                <span>Calculated after order</span>
+            </div>
+
+            <div class="summary-line summary-total">
+                <strong>Total</strong>
+                <strong>৳{{ "{:,.0f}".format(total) }}</strong>
+            </div>
+
+            <a class="checkout-btn"
+               href="{{ url_for('checkout') }}">
+                <span>Proceed to checkout</span>
+                <span>↗</span>
+            </a>
+
+            <p style="font-size:11px;color:#888;line-height:1.7;margin-top:16px;">
+                Your final delivery details will be collected at checkout.
+            </p>
+
+        </aside>
+
+    </section>
+
+    {% else %}
+
+    <section class="empty-cart">
+        <h2>Your bag is empty.</h2>
+        <p>Discover something you love and make it yours.</p>
+        <a href="{{ url_for('shop') }}">Explore the collection ↗</a>
+    </section>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}

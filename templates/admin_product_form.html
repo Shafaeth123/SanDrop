@@ -1,0 +1,235 @@
+
+{% extends "admin_base.html" %}
+
+{% block content %}
+
+<div class="admin-heading">
+    <div>
+        <span class="eyebrow">CATALOG</span>
+        <h1>{{ 'Edit product' if p else 'Add product' }}</h1>
+    </div>
+</div>
+
+<form class="product-admin-form"
+      method="post"
+      enctype="multipart/form-data">
+
+    <div class="admin-panel">
+
+        <div class="form-grid">
+
+            <label>
+                Product name
+                <input
+                    name="name"
+                    value="{{ p.name if p else '' }}"
+                    required
+                >
+            </label>
+
+            <label>
+                Category
+                <select name="category" required>
+                    {% for c in categories %}
+                    <option value="{{ c }}"
+                        {% if p and p.category == c %}selected{% endif %}>
+                        {{ c }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <label>
+                Price
+                <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    name="price"
+                    value="{{ p.price if p else '' }}"
+                    required
+                >
+            </label>
+
+            <label>
+                Old price
+                <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    name="old_price"
+                    value="{{ p.old_price if p and p.old_price else '' }}"
+                >
+            </label>
+         
+<label>
+    Cost Price (Buying Price)
+    <input
+        type="number"
+        step="0.01"
+        min="0"
+        name="cost_price"
+        value="{{ p.cost_price if p and p.cost_price is not none else 0 }}"
+        required
+    >
+    <small>Your purchase or manufacturing cost per item.</small>
+</label>
+
+            <label>
+                Stock quantity
+                <input
+                    type="number"
+                    name="stock"
+                    min="0"
+                    value="{{ p.stock if p else 0 }}"
+                    required
+                >
+            </label>
+
+            <label>
+                Main product image
+                <input
+                    type="file"
+                    name="image"
+                    accept=".jpg,.jpeg,.png,.webp"
+                    {% if not p %}required{% endif %}
+                >
+                <small>Primary image shown on the product page.</small>
+
+                {% if p and p.image %}
+                <div style="margin-top:10px;">
+                    <img
+                        src="{{ url_for('static', filename=p.image) }}"
+                        alt="Main product image"
+                        style="width:100px;height:115px;object-fit:cover;border-radius:6px;border:1px solid #ddd;"
+                    >
+                    <small style="display:block;">Current main image</small>
+                </div>
+                {% endif %}
+            </label>
+
+            <label>
+                Sizes
+                <input
+                    name="sizes"
+                    value="{{ p.sizes if p else 'S,M,L,XL' }}"
+                >
+            </label>
+
+            <label>
+                Colors
+                <input
+                    name="colors"
+                    value="{{ p.colors if p else 'Black,White' }}"
+                >
+            </label>
+
+        </div>
+
+        <!-- Additional product images -->
+        <div
+            class="additional-images-section"
+            style="margin-top:25px;padding:20px;border:1px solid #e5e5e5;border-radius:10px;"
+        >
+
+            <h3 style="margin-top:0;">Additional product images</h3>
+
+            <p style="color:#777;font-size:13px;">
+                Upload multiple photos. They will appear as thumbnails
+                on the public product page.
+            </p>
+
+            <label>
+                Choose additional images
+                <input
+                    type="file"
+                    name="additional_images"
+                    accept=".jpg,.jpeg,.png,.webp"
+                    multiple
+                >
+            </label>
+
+            <!-- Previously uploaded images -->
+            {% if p and p.images %}
+            <div style="margin-top:22px;">
+
+                <strong>Previously uploaded images</strong>
+
+                <p style="font-size:13px;color:#777;">
+                    Tick "Delete image" under any photo you want to remove.
+                    Unticked photos will be kept.
+                </p>
+
+                <div style="display:flex;flex-wrap:wrap;gap:16px;margin-top:14px;">
+
+                    {% for image in p.images.split('|') %}
+                        {% set image = image.strip() %}
+
+                        {% if image %}
+                        <label
+                            style="width:115px;text-align:center;padding:8px;border:1px solid #eee;border-radius:8px;"
+                        >
+                            <img
+                                src="{{ url_for('static', filename=image) }}"
+                                alt="Additional product image"
+                                style="width:100px;height:115px;object-fit:cover;border-radius:6px;display:block;margin:0 auto 8px;"
+                            >
+
+                            <span style="font-size:12px;color:#c62828;">
+                                <input
+                                    type="checkbox"
+                                    name="remove_images"
+                                    value="{{ image }}"
+                                >
+                                Delete image
+                            </span>
+                        </label>
+                        {% endif %}
+
+                    {% endfor %}
+
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+
+        <label style="display:block;margin-top:22px;">
+            Description
+            <textarea
+                name="description"
+                rows="6"
+                required
+            >{{ p.description if p else '' }}</textarea>
+        </label>
+
+        <div class="check-row">
+
+            <label>
+                <input
+                    type="checkbox"
+                    name="available"
+                    {% if not p or p.available %}checked{% endif %}
+                >
+                Available on store
+            </label>
+
+            <label>
+                <input
+                    type="checkbox"
+                    name="featured"
+                    {% if p and p.featured %}checked{% endif %}
+                >
+                Featured product
+            </label>
+
+        </div>
+
+        <button type="submit" class="btn dark">
+            Save product
+        </button>
+
+    </div>
+</form>
+
+{% endblock %}

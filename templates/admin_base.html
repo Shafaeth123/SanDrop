@@ -1,0 +1,226 @@
+
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>{% block title %}SanDrop Admin{% endblock %}</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        .admin-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .admin-top-right {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+        }
+
+        .admin-notification {
+            position: relative;
+        }
+
+        .notification-trigger {
+            position: relative;
+            cursor: pointer;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            padding: 9px 12px;
+            background: #fff;
+            color: #222;
+            font-size: 20px;
+            list-style: none;
+        }
+
+        .notification-trigger::-webkit-details-marker {
+            display: none;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -7px;
+            right: -7px;
+            min-width: 19px;
+            height: 19px;
+            padding: 0 4px;
+            border-radius: 20px;
+            background: #dc2626;
+            color: #fff;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .notification-dropdown {
+            position: absolute;
+            top: 45px;
+            right: 0;
+            width: 300px;
+            max-width: calc(100vw - 40px);
+            background: #fff;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            box-shadow: 0 12px 35px rgba(0,0,0,.12);
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .notification-heading {
+            padding: 15px;
+            font-weight: 700;
+            border-bottom: 1px solid #eee;
+        }
+
+        .notification-item {
+            display: block;
+            padding: 13px 15px;
+            color: #333;
+            text-decoration: none;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .notification-item:hover {
+            background: #f8f8f8;
+        }
+
+        .notification-item small {
+            display: block;
+            margin-top: 5px;
+            color: #777;
+        }
+
+        .notification-empty {
+            padding: 18px 15px;
+            color: #777;
+            font-size: 14px;
+        }
+
+        .notification-footer {
+            display: block;
+            padding: 13px 15px;
+            color: #333;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .notification-footer:hover {
+            background: #f8f8f8;
+        }
+    </style>
+</head>
+
+<body class="admin-body">
+
+    <aside class="admin-side">
+        <div class="brand">SanDrop <span>.</span></div>
+
+        <span class="eyebrow">CONTROL CENTER</span>
+
+        <nav>
+            <a href="{{ url_for('admin_dashboard') }}">Overview</a>
+            <a href="{{ url_for('admin_products') }}">Products &amp; Stock</a>
+            <a href="{{ url_for('admin_orders') }}">Orders</a>
+            <a href="{{ url_for('admin_customers') }}">Customers</a>
+            <a href="{{ url_for('features.admin_reviews') }}">Reviews</a>
+            <a href="{{ url_for('admin_hero_slides') }}">Hero Slideshow</a>
+        </nav>
+
+        <a class="logout" href="{{ url_for('admin_logout') }}">Log out</a>
+    </aside>
+
+    <div class="admin-main">
+
+        <div class="admin-top">
+            <span>Store management</span>
+
+            <div class="admin-top-right">
+
+                <details class="admin-notification">
+                    <summary class="notification-trigger" title="Notifications">
+                        &#128276;
+
+                        {% set notification_total =
+                            (admin_pending_count | default(0))
+                            + (admin_low_stock_count | default(0)) %}
+
+                        {% if notification_total > 0 %}
+                        <span class="notification-badge">
+                            {{ notification_total }}
+                        </span>
+                        {% endif %}
+                    </summary>
+
+                    <div class="notification-dropdown">
+                        <div class="notification-heading">
+                            Notifications
+                        </div>
+
+                        <a class="notification-item"
+                           href="{{ url_for('admin_orders', status='Pending') }}">
+                            Pending Orders
+                            <small>
+                                {{ admin_pending_count | default(0) }}
+                                order(s) waiting for review
+                            </small>
+                        </a>
+
+                        <a class="notification-item"
+                           href="{{ url_for('admin_products', stock='low') }}">
+                            Low Stock Products
+                            <small>
+                                {{ admin_low_stock_count | default(0) }}
+                                product(s) need attention
+                            </small>
+                        </a>
+
+                        {% if admin_notifications | default([]) %}
+                            {% for n in admin_notifications %}
+                            <a class="notification-item"
+                               href="{{ url_for('admin_orders', status='Pending') }}">
+                                Order #{{ n.id }}
+                                <small>
+                                    ৳{{ "{:,.2f}".format(n.total) }}
+                                    · {{ n.created_at }}
+                                </small>
+                            </a>
+                            {% endfor %}
+                        {% else %}
+                            <div class="notification-empty">
+                                No pending orders.
+                            </div>
+                        {% endif %}
+
+                        <a class="notification-footer"
+                           href="{{ url_for('admin_orders') }}">
+                            View all orders →
+                        </a>
+                    </div>
+                </details>
+
+                <a href="{{ url_for('home') }}">View store ↗</a>
+            </div>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for c, m in messages %}
+                    <div class="toast {{ c }}">{{ m }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+
+    </div>
+
+</body>
+</html>

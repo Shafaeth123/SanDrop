@@ -1,0 +1,275 @@
+
+{% extends "admin_base.html" %}
+
+{% block title %}Review Management — SanDrop Admin{% endblock %}
+
+{% block content %}
+<style>
+.review-admin {
+    max-width: 1400px;
+    margin: 40px auto;
+    padding: 0 20px 50px;
+}
+.review-admin h1 {
+    margin-bottom: 8px;
+}
+.review-table-wrap {
+    overflow-x: auto;
+    margin-top: 25px;
+    border: 1px solid #e5e5e5;
+}
+.review-table {
+    width: 100%;
+    min-width: 1050px;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+.review-table th, .review-table td {
+    padding: 15px;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid #eee;
+}
+.review-table th {
+    background: #f7f7f7;
+}
+.review-table .review-text {
+    min-width: 220px;
+    max-width: 320px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+.review-stars {
+    color: #b18438;
+    font-size: 18px;
+    white-space: nowrap;
+}
+.delete-review {
+    background: #a52828;
+    color: white;
+    border: 0;
+    padding: 10px 14px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+.review-product {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    min-width: 170px;
+}
+.review-product img {
+    width: 55px;
+    height: 65px;
+    object-fit: cover;
+}
+</style>
+
+
+<div class="review-admin">
+    <h1>Review Management</h1>
+    <p>Manage customer feedback, ratings and verified purchases.</p>
+
+    <style>
+    .review-analytics {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 16px;
+        margin: 25px 0;
+    }
+    .review-stat {
+        background: #fff;
+        border: 1px solid #e5e5e5;
+        border-radius: 8px;
+        padding: 20px;
+    }
+    .review-stat span {
+        display: block;
+        color: #666;
+        font-size: 13px;
+        margin-bottom: 10px;
+    }
+    .review-stat strong {
+        font-size: 28px;
+    }
+    </style>
+
+    <div class="review-analytics">
+        <div class="review-stat">
+            <span>Total Reviews</span>
+            <strong>{{ review_analytics.total }}</strong>
+        </div>
+
+        <div class="review-stat">
+            <span>Average Rating</span>
+            <strong>{{ review_analytics.average }} / 5</strong>
+        </div>
+
+        <div class="review-stat">
+            <span>5-Star Reviews</span>
+            <strong>{{ review_analytics.five_star }}</strong>
+        </div>
+
+        <div class="review-stat">
+            <span>1-Star Reviews</span>
+            <strong>{{ review_analytics.one_star }}</strong>
+        </div>
+
+        <div class="review-stat">
+            <span>Verified Purchases</span>
+            <strong>{{ review_analytics.verified }}</strong>
+        </div>
+    </div>
+
+<style>
+.review-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 25px 0;
+}
+.review-filters input,
+.review-filters select {
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+}
+.review-filters input {
+    flex: 1;
+    min-width: 220px;
+}
+.review-filters button {
+    padding: 12px 20px;
+    border: 0;
+    border-radius: 6px;
+    background: #222;
+    color: white;
+    cursor: pointer;
+}
+.review-filters a {
+    padding: 12px;
+    color: #555;
+}
+</style>
+
+<form method="GET" action="{{ url_for('features.admin_reviews') }}"
+      class="review-filters">
+    <input
+        type="search"
+        name="search"
+        placeholder="Search customer, email or product..."
+        value="{{ search }}"
+    >
+
+    <select name="rating">
+        <option value="">All Ratings</option>
+        {% for n in range(5, 0, -1) %}
+        <option value="{{ n }}"
+            {% if rating == n|string %}selected{% endif %}>
+            {{ n }} Star{{ 's' if n != 1 else '' }}
+        </option>
+        {% endfor %}
+    </select>
+
+    <select name="verified">
+        <option value="">All Purchases</option>
+        <option value="yes" {% if verified == 'yes' %}selected{% endif %}>
+            Verified
+        </option>
+        <option value="no" {% if verified == 'no' %}selected{% endif %}>
+            Unverified
+        </option>
+    </select>
+
+    <button type="submit">Apply Filters</button>
+    <a href="{{ url_for('features.admin_reviews') }}">Reset</a>
+</form>
+
+
+    <div class="review-table-wrap">
+        <table class="review-table">
+            <thead>
+                <tr>
+                    <th>Review ID</th>
+                    <th>Customer</th>
+                    <th>Product</th>
+                    <th>Order</th>
+                    <th>Rating</th>
+                    <th>Review</th>
+                    <th>Date</th>
+                    <th>Verified</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for r in reviews %}
+                <tr>
+                    <td>#{{ r.id }}</td>
+
+                    <td>
+                        <strong>{{ r.customer_name or "Unknown" }}</strong><br>
+                        {{ r.customer_email or "No email" }}<br>
+                        {{ r.customer_phone or "No phone" }}
+                    </td>
+
+                    <td>
+                        <div class="review-product">
+                            {% if r.product_image %}
+                                {% if r.product_image.startswith('http') %}
+                                    <img src="{{ r.product_image }}" alt="">
+                                {% else %}
+                                    <img src="{{ url_for('static', filename=r.product_image) }}" alt="">
+                                {% endif %}
+                            {% endif %}
+                            <div>
+                                {{ r.product_name or "Deleted product" }}<br>
+                                <small>Product ID: {{ r.product_id }}</small>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td>
+                        #{{ r.order_id }}<br>
+                        {{ r.order_status or "Unknown" }}
+                    </td>
+
+                    <td class="review-stars">
+                        {{ "★" * r.rating }}{{ "☆" * (5 - r.rating) }}
+                        <br>
+                        <small>{{ r.rating }}/5</small>
+                    </td>
+
+                    <td class="review-text">{{ r.review }}</td>
+
+                    <td>{{ r.created_at }}</td>
+
+                    <td>
+                        {% if r.verified_purchase %}
+                            Yes
+                        {% else %}
+                            No
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <form method="POST"
+                              action="{{ url_for('features.admin_review_delete', review_id=r.id) }}"
+                              onsubmit="return confirm('Are you sure you want to delete this review?');">
+                            <button type="submit" class="delete-review">
+                                Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="9">No customer reviews yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

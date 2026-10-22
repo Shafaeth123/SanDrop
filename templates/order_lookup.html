@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Order Tracking — SanDrop{% endblock %}
+{% block content %}
+<section class="feature-page">
+  <span class="eyebrow">AFTER YOUR ORDER</span><h1>Order tracking & history</h1>
+  <p>Enter the email address used at checkout. Add an order number to look up one specific order, or leave it blank to view recent orders linked to that email.</p>
+  <form class="feature-form" method="post">
+    <label>Email address<input type="email" name="email" value="{{ email }}" required autocomplete="email"></label>
+    <label>Order number (optional)<input type="number" name="order_id" min="1" placeholder="e.g. 1024"></label>
+    <button class="btn dark" type="submit">Find orders</button>
+  </form>
+  {% if orders %}
+  <div class="feature-table-wrap">
+    <table class="feature-table">
+      <thead><tr><th>Order</th><th>Date</th><th>Total</th><th>Status</th><th>Payment</th></tr></thead>
+      <tbody>{% for o in orders %}
+        <tr><td>#{{ o.id }}</td><td>{{ o.created_at[:10] if o.created_at else "—" }}</td><td>৳{{ '%.2f'|format(o.total) }}</td><td>{{ o.status }}</td><td>{{ o.payment_method|upper }}</td></tr>
+      {% endfor %}</tbody>
+    </table>
+  </div>
+  {% endif %}
+  <p class="feature-note">For privacy, only orders matching both the order number (if supplied) and checkout email are shown.</p>
+</section>
+{% endblock %}

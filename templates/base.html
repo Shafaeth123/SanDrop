@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="SanDrop — premium clothing and contemporary fashion.">
+<title>{% block title %}SanDrop — Define Your Style{% endblock %}</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/features.css') }}">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="{{ url_for('home') }}">SanDrop<span>.</span></a>
+  <nav class="nav">
+    <a href="{{ url_for('shop') }}">Shop</a>
+    <a href="{{ url_for('shop', category='T-Shirts') }}">T-Shirts</a>
+    <a href="{{ url_for('shop', category='Dresses') }}">Dresses</a>
+    <a href="{{ url_for('shop', category='Hoodies') }}">Hoodies</a>
+  </nav>
+  <div class="header-actions">
+    <form class="search-mini" action="{{ url_for('shop') }}"><input name="q" placeholder="Search" aria-label="Search"><button>⌕</button></form>
+    <a class="bag" href="{{ url_for('cart') }}">Bag <b>{{ cart_count }}</b></a>
+    <a href="{{ url_for('features.wishlist_page') }}">
+    Wishlist <b>{{ wishlist_count }}</b>
+</a>
+  </div>
+</header>
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}<div class="toast-wrap">{% for category,msg in messages %}<div class="toast {{category}}">{{msg}}</div>{% endfor %}</div>{% endif %}
+{% endwith %}
+<main>{% block content %}{% endblock %}</main>
+<footer>
+  <div class="footer-grid">
+    <div><div class="brand">SanDrop<span>.</span></div><p>Contemporary clothing made for everyday expression.</p></div>
+    <div><h4>Explore</h4><a href="{{url_for('shop')}}">All products</a><a href="{{url_for('shop',category='T-Shirts')}}">T-Shirts</a><a href="{{url_for('shop',category='Dresses')}}">Dresses</a></div>
+  <div>
+    <h4>Support</h4>
+    <a href="{{ url_for('features.delivery_policy') }}">Delivery Policy</a>
+    <a href="{{ url_for('features.returns_policy') }}">Return Policy</a>
+    <a href="{{ url_for('features.size_guide') }}">Size Guide</a>
+    <a href="{{ url_for('features.order_lookup') }}">Track Order</a>
+</div>
+    <div><h4>Store</h4><span>Dhaka, Bangladesh</span><span>Everyday · 10 AM — 10 PM</span></div>
+  </div>
+  <div class="footer-bottom">© 2026 SanDrop. All rights reserved. <a href="{{url_for('admin_login')}}">Admin</a></div>
+</footer>
+<script src="{{url_for('static',filename='js/app.js')}}"></script>
+<script src="{{ url_for('static', filename='js/features.js') }}"></script>
+</body></html>

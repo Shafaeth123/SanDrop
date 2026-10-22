@@ -1,0 +1,79 @@
+ {% extends "admin_base.html" %}
+
+{% block title %}Hero Slideshow — SanDrop Admin{% endblock %}
+
+{% block content %}
+<section class="admin-heading">
+    <div>
+        <span class="eyebrow">HOMEPAGE SETTINGS</span>
+        <h1>Hero Slideshow</h1>
+        <p>Upload and manage the images shown on your homepage.</p>
+    </div>
+</section>
+
+<section class="admin-panel">
+    <h2>Upload images</h2>
+
+    <form method="POST"
+          action="{{ url_for('admin_hero_slides') }}"
+          enctype="multipart/form-data">
+
+        <label for="images">Choose images (up to 10)</label>
+        <input id="images"
+               type="file"
+               name="images"
+               accept=".jpg,.jpeg,.png,.webp"
+               multiple
+               required>
+
+        <label for="alt_text">Image description</label>
+        <input id="alt_text"
+               type="text"
+               name="alt_text"
+               maxlength="150"
+               value="SanDrop Collection">
+
+        <button class="btn dark" type="submit">Upload images</button>
+    </form>
+</section>
+
+<section class="admin-panel">
+    <h2>Uploaded slides</h2>
+
+    {% if slides %}
+        <div class="product-grid">
+            {% for slide in slides %}
+                <article class="admin-panel">
+                    <img
+                        src="{{ url_for('static', filename=slide.image) }}"
+                        alt="{{ slide.alt_text }}"
+                        style="width:100%;height:220px;object-fit:cover;"
+                    >
+
+                    <p>
+                        Status:
+                        <strong>
+                            {{ "Active" if slide.active else "Hidden" }}
+                        </strong>
+                    </p>
+
+                    <form method="POST"
+                          action="{{ url_for('admin_hero_slide_toggle', slide_id=slide.id) }}">
+                        <button class="btn dark" type="submit">
+                            {{ "Hide from homepage" if slide.active else "Show on homepage" }}
+                        </button>
+                    </form>
+
+                    <form method="POST"
+                          action="{{ url_for('admin_hero_slide_delete', slide_id=slide.id) }}"
+                          onsubmit="return confirm('Delete this slideshow image?');">
+                        <button class="btn" type="submit">Delete image</button>
+                    </form>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No slideshow images uploaded yet. Upload your first image above.</p>
+    {% endif %}
+</section>
+{% endblock %}

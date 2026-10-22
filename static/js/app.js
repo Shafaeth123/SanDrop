@@ -1,0 +1,1 @@
+setTimeout(()=>document.querySelectorAll('.toast').forEach(x=>x.classList.add('hide')),3500);

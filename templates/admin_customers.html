@@ -1,0 +1,113 @@
+
+{% extends "admin_base.html" %}
+{% block content %}
+
+<div class="admin-heading">
+    <div>
+        <span class="eyebrow">CUSTOMER BASE</span>
+        <h1>Customers</h1>
+        <p>Manage customers and track their purchase activity.</p>
+    </div>
+</div>
+
+<section class="admin-panel">
+
+    <!-- Customer Search -->
+    <form method="GET"
+          action="{{ url_for('admin_customers') }}"
+          style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:22px;">
+
+        <input
+            type="text"
+            name="search"
+            placeholder="Search name, email, phone, address or ID..."
+            value="{{ search }}"
+            style="flex:1; min-width:220px; padding:12px 14px; border:1px solid #ddd; border-radius:8px;"
+        >
+
+        <button type="submit" class="btn dark">Search</button>
+
+        <a href="{{ url_for('admin_customers') }}" class="btn">
+            Reset
+        </a>
+    </form>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Address</th>
+                    <th>Total Orders</th>
+                    <th>Total Spending</th>
+                    <th>Customer Type</th>
+                    <th>Last Order</th>
+                    <th>Joined</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for c in customers %}
+                <tr>
+                    <td>
+    <a href="{{ url_for('admin_customer_detail', customer_id=c.id) }}">
+        {{ c.name or '—' }}
+    </a>
+</td>
+
+                    <td>{{ c.email or '—' }}</td>
+
+                    <td>{{ c.phone or '—' }}</td>
+
+                    <td>{{ c.address or '—' }}</td>
+
+                    <td>
+                        <strong>{{ c.total_orders or 0 }}</strong>
+                    </td>
+
+                    <td>
+                        ৳{{ "{:,.2f}".format(c.total_spending or 0) }}
+                    </td>
+
+                    <td>
+                        {% if c.total_orders > 1 %}
+                            <span class="status-badge completed">
+                                Repeat Customer
+                            </span>
+                        {% elif c.total_orders == 1 %}
+                            <span class="status-badge pending">
+                                One-time Customer
+                            </span>
+                        {% else %}
+                            <span class="status-badge">
+                                No Orders
+                            </span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {{ c.last_order[:10] if c.last_order else '—' }}
+                    </td>
+
+                    <td>
+                        {{ c.created_at[:10] if c.created_at else '—' }}
+                    </td>
+                </tr>
+
+                {% else %}
+                <tr>
+                    <td colspan="9"
+                        style="text-align:center; padding:25px;">
+                        No customers found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</section>
+
+{% endblock %}

@@ -1,0 +1,111 @@
+
+{% extends "base.html" %}
+{% block title %}Shop — SanDrop{% endblock %}
+
+{% block content %}
+<section class="page-top">
+  <span class="eyebrow">THE COLLECTION</span>
+  <h1>Shop all</h1>
+  <p>Find your next everyday favorite.</p>
+</section>
+
+<section class="catalog">
+ 
+<aside class="filters shop-sidebar">
+
+  <div class="shop-category-section">
+    <span class="shop-filter-heading">SHOP BY CATEGORY</span>
+
+    <div class="shop-category-list">
+      <a class="{{ 'active' if not category }}"
+         href="{{ url_for('shop', q=q, sort=sort) }}">All Products</a>
+
+      {% for c in categories %}
+        <a class="{{ 'active' if category == c }}"
+           href="{{ url_for('shop', q=q, category=c, sort=sort) }}">{{ c }}</a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="shop-filter-section">
+    <span class="shop-filter-heading">REFINE YOUR SEARCH</span>
+
+    <form method="GET" action="{{ url_for('shop') }}" class="shop-filter-form">
+      <input type="hidden" name="q" value="{{ q }}">
+      <input type="hidden" name="category" value="{{ category }}">
+      <input type="hidden" name="sort" value="{{ sort }}">
+
+      <label for="size">Size</label>
+      <select name="size" id="size">
+        <option value="">All sizes</option>
+        {% for s in available_sizes %}
+          <option value="{{ s }}" {{ 'selected' if size == s }}>{{ s }}</option>
+        {% endfor %}
+      </select>
+
+      <label for="color">Color</label>
+      <select name="color" id="color">
+        <option value="">All colors</option>
+        {% for c in available_colors %}
+          <option value="{{ c }}" {{ 'selected' if color == c }}>{{ c }}</option>
+        {% endfor %}
+      </select>
+
+      <div class="shop-price-fields">
+        <div>
+          <label for="min_price">Min price (৳)</label>
+          <input type="number" name="min_price" id="min_price"
+                 min="0" step="1" value="{{ min_price }}" placeholder="0">
+        </div>
+        <div>
+          <label for="max_price">Max price (৳)</label>
+          <input type="number" name="max_price" id="max_price"
+                 min="0" step="1" value="{{ max_price }}" placeholder="Any">
+        </div>
+      </div>
+
+      <button type="submit" class="shop-apply-btn">Apply Filters <span>→</span></button>
+
+      <a class="shop-clear-btn"
+         href="{{ url_for('shop', q=q, category=category, sort=sort) }}">Clear all filters</a>
+    </form>
+  </div>
+
+</aside>
+
+
+  <div class="catalog-main">
+    <div class="catalog-toolbar">
+      <span>{{ products|length }} products</span>
+
+      <form method="GET" action="{{ url_for('shop') }}">
+        <input type="hidden" name="q" value="{{ q }}">
+        <input type="hidden" name="category" value="{{ category }}">
+        <input type="hidden" name="size" value="{{ size }}">
+        <input type="hidden" name="color" value="{{ color }}">
+        <input type="hidden" name="min_price" value="{{ min_price }}">
+        <input type="hidden" name="max_price" value="{{ max_price }}">
+
+        <select name="sort" onchange="this.form.submit()">
+          <option value="newest" {{ 'selected' if sort == 'newest' }}>Newest</option>
+          <option value="low" {{ 'selected' if sort == 'low' }}>Price: Low</option>
+          <option value="high" {{ 'selected' if sort == 'high' }}>Price: High</option>
+          <option value="name" {{ 'selected' if sort == 'name' }}>Name</option>
+        </select>
+      </form>
+    </div>
+
+    <div class="product-grid">
+      {% for p in products %}
+        {% include "_card.html" %}
+      {% else %}
+        <div class="empty">
+          <h2>No products found</h2>
+          <p>Try another search or category.</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
+ 

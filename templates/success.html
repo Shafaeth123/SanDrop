@@ -1,0 +1,2 @@
+{% extends "base.html" %}
+{% block content %}<section class="success-page"><div class="success-icon">✓</div><span class="eyebrow">ORDER RECEIVED</span><h1>Thank you for choosing SanDrop.</h1><p>Your order <b>#{{order_id}}</b> has been received. Total: <b>৳{{"{:,.0f}".format(total)}}</b>.</p><a class="btn dark" href="{{url_for('shop')}}">Continue shopping</a></section>{% endblock %}

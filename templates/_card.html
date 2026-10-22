@@ -1,0 +1,21 @@
+<article class="card">
+  <a class="card-img" href="{{url_for('product',pid=p.id)}}">
+    
+    {% if p.image.startswith('uploads/') %}
+    <img src="{{ url_for('static', filename=p.image) }}" alt="{{ p.name }}">
+{% else %}
+    <img src="{{ p.image }}" alt="{{ p.name }}">
+{% endif %}
+    
+    {% if p.old_price %}<span class="badge">SALE</span>{% endif %}</a>
+  <div class="card-info"><div><span class="card-cat">{{p.category}}</span><h3><a href="{{url_for('product',pid=p.id)}}">{{p.name}}</a></h3></div><div class="price">৳{{"{:,.0f}".format(p.price)}}{% if p.old_price %}<del>৳{{"{:,.0f}".format(p.old_price)}}</del>{% endif %}</div></div>
+  
+ <div class="stock-note">
+    {% if p.stock > 0 %}
+        In stock
+    {% else %}
+        Out of stock
+    {% endif %}
+</div>
+
+</article>

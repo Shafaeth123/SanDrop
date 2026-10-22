@@ -1,0 +1,133 @@
+
+{% extends "admin_base.html" %}
+{% block content %}
+
+<div class="admin-heading">
+    <div>
+        <span class="eyebrow">INVENTORY</span>
+        <h1>Products &amp; Stock</h1>
+    </div>
+
+    <a class="btn dark" href="{{ url_for('admin_product_form') }}">
+        + Add product
+    </a>
+</div>
+
+<section class="admin-panel">
+
+    <!-- Product Search & Filters -->
+    <form method="GET" action="{{ url_for('admin_products') }}"
+          style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:22px;">
+
+        <input
+            type="text"
+            name="search"
+            placeholder="Search product name or ID..."
+            value="{{ search }}"
+            style="flex:1; min-width:180px; padding:12px; border:1px solid #ddd; border-radius:8px;"
+        >
+
+        <select name="category"
+                style="padding:12px; border:1px solid #ddd; border-radius:8px;">
+            <option value="">All Categories</option>
+            {% for cat in categories %}
+            <option value="{{ cat }}" {% if category == cat %}selected{% endif %}>
+                {{ cat }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <select name="stock"
+                style="padding:12px; border:1px solid #ddd; border-radius:8px;">
+            <option value="">All Stock</option>
+            <option value="in" {% if stock_status == 'in' %}selected{% endif %}>
+                In Stock (&gt; 5)
+            </option>
+            <option value="low" {% if stock_status == 'low' %}selected{% endif %}>
+                Low Stock (1–5)
+            </option>
+            <option value="out" {% if stock_status == 'out' %}selected{% endif %}>
+                Out of Stock
+            </option>
+        </select>
+
+        <select name="availability"
+                style="padding:12px; border:1px solid #ddd; border-radius:8px;">
+            <option value="">All Availability</option>
+            <option value="available" {% if availability == 'available' %}selected{% endif %}>
+                Available
+            </option>
+            <option value="unavailable" {% if availability == 'unavailable' %}selected{% endif %}>
+                Hidden
+            </option>
+        </select>
+
+        <button type="submit" class="btn dark">Apply Filters</button>
+
+        <a href="{{ url_for('admin_products') }}" class="btn">Reset</a>
+    </form>
+
+    <div class="table-wrap">
+        <table>
+            <tr>
+                <th>Product</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Availability</th>
+                <th>Actions</th>
+            </tr>
+
+            {% for p in products %}
+            <tr>
+                <td>
+                    <div class="table-product">
+                        {% if p.image and p.image.startswith('uploads/') %}
+                            <img src="{{ url_for('static', filename=p.image) }}"
+                                 alt="{{ p.name }}">
+                        {% elif p.image %}
+                            <img src="{{ p.image }}" alt="{{ p.name }}">
+                        {% endif %}
+                        <span>{{ p.name }}</span>
+                    </div>
+                </td>
+
+                <td>{{ p.category }}</td>
+                <td>৳{{ "{:,.0f}".format(p.price) }}</td>
+
+                <td>
+                    <b class="{{ 'danger-text' if p.stock <= 5 else '' }}">
+                        {{ p.stock }}
+                    </b>
+                </td>
+
+                <td>{{ 'Available' if p.available else 'Hidden' }}</td>
+
+                <td>
+                    <a class="table-action"
+                       href="{{ url_for('admin_product_form', pid=p.id) }}">
+                        Edit
+                    </a>
+
+                    <form class="inline" method="POST"
+                          action="{{ url_for('admin_product_delete', pid=p.id) }}"
+                          onsubmit="return confirm('Delete this product?')">
+                        <button type="submit" class="table-action danger">
+                            Delete
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" style="text-align:center; padding:25px;">
+                    No products found.
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+</section>
+
+{% endblock %}

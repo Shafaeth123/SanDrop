@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Delivery Information — SanDrop{% endblock %}
+{% block content %}
+<section class="feature-page">
+  <span class="eyebrow">SANDROP CUSTOMER CARE</span>
+  <h1>Delivery information</h1>
+  <p>We aim to deliver your order safely and keep you informed along the way.</p>
+  <div class="feature-panel">
+    <h2>Delivery areas</h2>
+    <p>We accept orders in Bangladesh. Delivery coverage and timing may vary by destination.</p>
+    <h2>Processing and delivery time</h2>
+    <p>Your order is prepared after it is placed. Our team will contact you if additional details are needed. Exact delivery times and charges should be confirmed at checkout or with customer care.</p>
+    <h2>Receiving your parcel</h2>
+    <p>Please provide a reachable phone number and complete address. Check the parcel when it arrives and contact customer care promptly if there is an issue.</p>
+    <h2>Order updates</h2>
+    <p>Use <a href="{{ url_for('features.order_lookup') }}">Order tracking</a> to look up an order with its order number and checkout email.</p>
+  </div>
+  <p class="feature-note">Before publishing, replace general wording with your actual delivery partners, fees, and service timelines.</p>
+</section>
+{% endblock %}

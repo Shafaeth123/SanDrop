@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Your Wishlist — SanDrop{% endblock %}
+{% block content %}
+<section class="feature-page">
+  <span class="eyebrow">SAVED FOR LATER</span><h1>Your wishlist</h1>
+  {% if products %}
+  <div class="product-grid">
+    {% for p in products %}
+      <article class="feature-product">
+        <a href="{{ url_for('product', pid=p.id) }}">
+          <img loading="lazy" src="{{ p.image if p.image.startswith('http') else url_for('static', filename=p.image) }}" alt="{{ p.name }}">
+          <h3>{{ p.name }}</h3>
+        </a>
+        <p>৳{{ '%.2f'|format(p.price) }}</p>
+        <div class="feature-actions">
+          <a class="btn dark" href="{{ url_for('product', pid=p.id) }}">View product</a>
+          <form method="post" action="{{ url_for('features.wishlist_toggle') }}">
+            <input type="hidden" name="product_id" value="{{ p.id }}">
+            <button class="btn light" type="submit">Remove</button>
+          </form>
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="feature-panel"><p>Your wishlist is empty.</p><a class="btn dark" href="{{ url_for('shop') }}">Explore products</a></div>
+  {% endif %}
+</section>
+{% endblock %}
