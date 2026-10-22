@@ -1,4 +1,4 @@
-# SORTAN — Premium Fashion Store
+# SanDrop — Premium Fashion Store
 
 A complete Flask + SQLite clothing store with:
 - Premium responsive storefront
