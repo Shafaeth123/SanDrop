@@ -1903,11 +1903,11 @@ def admin_export_orders():
     )
 
 
+app.register_blueprint(features)
+
+with app.app_context():
+    init_db()
+    init_feature_db()
+
 if __name__ == "__main__":
-    app.register_blueprint(features)
-
-    with app.app_context():
-        init_db()
-        init_feature_db()
-
     app.run(host="0.0.0.0", port=5000, debug=False)
